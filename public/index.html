@@ -9,15 +9,15 @@
     --chrome:#2E3942; --chrome-2:#3B4954; --ink:#1B2229; --ink-2:#5B6770; --line:#DCE1E5;
     --page:#F3F4F5; --white:#fff; --ok:#2E8B57; --warn:#C8811A; --bad:#B23A3A;
     --mp:#1F5F8B; --mp-soft:#E7F0F7; --bubble-in:#ECEEF1; --bubble-out:#2E8B57; --thread:#F2F4F6;
-    --accent:#F2B705; --cap:#E9EDF1; --label:#8E99A3;
+    --accent:#F2B705;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{background:#15191D;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-  .stage{position:relative;overflow:hidden;transition:opacity .5s;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px}
+  .stage{position:relative;overflow:hidden;transition:opacity .5s;min-height:100%;display:flex;align-items:center;justify-content:center;padding:18px}
   .stage.fade{opacity:0}
-  .phone{position:relative;width:390px;height:min(812px,calc(100dvh - 190px));background:var(--page);border-radius:38px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 10px #0B0D10,0 0 0 12px #2A2F35}
+  .phone{position:relative;width:390px;height:min(812px,calc(100dvh - 36px));background:var(--page);border-radius:38px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 10px #0B0D10,0 0 0 12px #2A2F35}
   .screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
   .screen.on{display:flex}
   .statusbar{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:13px;font-weight:600;color:#fff;background:var(--chrome)}
@@ -66,8 +66,6 @@
   .tog button{padding:6px 12px;border-radius:6px;border:1px solid var(--line);font-size:13px;font-weight:600;background:#FAFBFB}
   .tog button.on-yes{background:var(--ok);color:#fff;border-color:var(--ok)}
   .tog button.on-no{background:var(--bad);color:#fff;border-color:var(--bad)}
-  .toast{position:absolute;left:12px;right:12px;bottom:14px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;text-align:center;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}
-  .toast.on{opacity:1;transform:none}
   /* notification banner */
   .banner{position:absolute;top:8px;left:10px;right:10px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-radius:16px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 12px 30px rgba(0,0,0,.28);transform:translateY(-130%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:20;text-align:left;width:calc(100% - 20px)}
   .banner.on{transform:none}
@@ -80,7 +78,6 @@
   .thread .topbar{background:var(--chrome)}
   .thread .topbar .av{width:34px;height:34px;border-radius:50%;background:#8A949D;flex:none}
   .thread .topbar .nm{line-height:1.1}
-  .thread .topbar .nm small{display:block;font-weight:400;font-size:11.5px;opacity:.82}
   .thread .content{background:var(--thread);padding:12px 12px 8px;display:flex;flex-direction:column;gap:8px}
   .msg{max-width:86%;padding:9px 11px;border-radius:12px;font-size:14px;line-height:1.4;background:var(--bubble-in);box-shadow:0 1px 1px rgba(0,0,0,.08);white-space:pre-wrap;position:relative}
   .msg.in{align-self:flex-start;border-top-left-radius:4px}
@@ -97,15 +94,8 @@
   .composer{display:flex;gap:8px;padding:8px 12px 14px;background:#EDF0F3;border-top:1px solid #DFE4E9}
   .composer div{flex:1;height:38px;border-radius:19px;background:#fff;border:1px solid #DFE4E9;color:#A3A9AF;font-size:14px;display:flex;align-items:center;padding:0 14px}
   .composer span{width:38px;height:38px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:16px}
-  /* label, caption, footer, fingertip */
-  .toplabel{width:390px;max-width:100%;padding:0 4px;font-size:12.5px;line-height:1.35;color:var(--label)}
-  .cap{width:min(560px,100%);min-height:52px;display:flex;align-items:center;justify-content:center;
-       text-align:center;font-size:17px;line-height:1.4;color:var(--cap);transition:opacity .22s}
-  .cap.out{opacity:0}
-  .foot{display:flex;align-items:center;gap:10px;font-size:13px;color:#67737E}
-  .foot a{color:#9FB0BD;text-decoration:none;border-bottom:1px solid rgba(159,176,189,.35)}
-  .foot a:hover{color:#fff}
-  .tip{position:absolute;left:0;top:0;z-index:50;width:44px;height:44px;border-radius:50%;
+  /* fingertip */
+  .tip{position:absolute;left:0;top:0;z-index:50;pointer-events:none;width:44px;height:44px;border-radius:50%;
     background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.8);
     box-shadow:0 0 0 6px rgba(255,255,255,.07);opacity:0;pointer-events:none;
     transition:transform .4s cubic-bezier(.4,.1,.2,1),opacity .2s}
@@ -116,15 +106,12 @@
   @keyframes cut{from{opacity:0}}
   @keyframes ping{50%{transform:scale(.82);background:rgba(255,255,255,.45)}}
   @media (max-width:430px){
-    .stage{padding:0;gap:0;height:100dvh;min-height:0;justify-content:flex-start;overflow:hidden}
-    .toplabel{width:100%;padding:6px 12px;text-align:center;font-size:11.5px;background:#0F1317;border-bottom:1px solid #232A31}
-    .phone{width:100vw;height:auto;flex:1;min-height:0;border-radius:0;box-shadow:none}
+    .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
+    .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
     .statusbar{display:none}
-    .cap{width:100%;max-width:100%;min-height:0;padding:9px 14px;font-size:16.5px}
-    .foot{padding-bottom:10px}
   }
   @media (prefers-reduced-motion:reduce){
-    .banner,.toast,.cap,.tip{transition:none}
+    .banner,.tip{transition:none}
     .tip{display:none}
   }
   button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #7FB3E0;outline-offset:1px}
@@ -132,8 +119,9 @@
 </head>
 <body>
 <div class="stage">
-<div class="toplabel">Engineer's phone · job app: JobWatch, Ibcos Gold or whatever they use</div>
 <div class="phone" id="phone">
+
+  <div class="tip" id="tip" aria-hidden="true"></div>
 
   <!-- Notification banner -->
   <button class="banner" id="banner" aria-live="polite">
@@ -195,21 +183,14 @@
   <!-- THREAD -->
   <section class="screen thread" id="s-thread">
     <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
-    <div class="topbar"><button class="back" id="threadBack" aria-label="Back">‹</button><div class="av" aria-hidden="true"></div><div class="nm">Machinery Pilot<small>+44 7700 900123</small></div></div>
+    <div class="topbar"><button class="back" id="threadBack" aria-label="Back">‹</button><div class="av" aria-hidden="true"></div><div class="nm">Machinery Pilot</div></div>
     <div class="content" id="threadBody"><div class="day">Today</div></div>
     <div class="replies" id="replies"></div>
     <div class="composer"><div>Message</div><span>➤</span></div>
   </section>
 
-  <div class="toast" id="toast"></div>
 </div>
 
-<p class="cap" id="cap" aria-live="polite"></p>
-<nav class="foot">
-  <a id="mode" href="?manual">Try it yourself</a><span aria-hidden="true">·</span>
-  <a href="https://calendly.com/max-machinerypilot/25-minutes-with-max" target="_blank" rel="noopener">Book 25 min with Max</a>
-</nav>
-<div class="tip" id="tip" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -270,8 +251,8 @@
     if(flag) setTimeout(()=>{$('q-cause').focus();},200);
   }
   function setPhoto(btn,has,label){ btn.classList.toggle('has',has); btn.textContent=has?'✓ '+label:'📷 Take photo'; }
-  $('q-hourphoto').addEventListener('click',()=>{state.hourPhoto=true;syncWs();toast('Photo added');});
-  $('q-partphoto').addEventListener('click',()=>{state.partPhoto=true;syncWs();toast('Photo added');});
+  $('q-hourphoto').addEventListener('click',()=>{state.hourPhoto=true;syncWs();});
+  $('q-partphoto').addEventListener('click',()=>{state.partPhoto=true;syncWs();});
   $('op-yes').addEventListener('click',()=>{state.op='yes';syncWs();});
   $('op-no').addEventListener('click',()=>{state.op='no';syncWs();});
   wsIds.forEach(id=>$(id).addEventListener('input',readWs));
@@ -298,7 +279,7 @@
   function fillWorksheet(){
     Object.assign(state,{hours:FILL.hours,hourPhoto:true,partPhoto:true,op:'yes',
       complaint:FILL.complaint,cause:FILL.cause,correction:FILL.correction});
-    syncWs(); syncJob(); toast('Worksheet filled the way engineers usually fill it');
+    syncWs(); syncJob();
   }
 
   // ---- messages
@@ -333,7 +314,7 @@
 
   // ---- flow
   $('startBtn').addEventListener('click',()=>{
-    state.started=true; syncJob(); state.startAt=stamp(); toast('Job started '+state.startAt);
+    state.started=true; syncJob(); state.startAt=stamp();
     if(!AUTO) at(600,fillWorksheet);   // manual: the card arrives filled, so Complete is always reachable
     timers.push(setTimeout(()=>{
       addMsg(START_MSG,'in');
@@ -343,11 +324,11 @@
   });
 
   $('completeBtn').addEventListener('click',doComplete);
-  $('tickBtn').addEventListener('click',()=>{ if(!state.started){toast('Start the job first');return;} if(wsCount()<7){toast((7-wsCount())+' mandatory answers missing');return;} if(!state.completed) doComplete(); });
+  $('tickBtn').addEventListener('click',()=>{ if(!state.started||wsCount()<7||state.completed) return; doComplete(); });
 
   function doComplete(){
-    readWsIfOn(); if(wsCount()<7){toast((7-wsCount())+' mandatory answers missing');return;}
-    state.completed=true; state.doneAt=stamp(); go('jobs'); toast('Job 48213 completed — sent to office');
+    readWsIfOn(); if(wsCount()<7) return;
+    state.completed=true; state.doneAt=stamp(); go('jobs');
     timers.push(setTimeout(()=>{
       addMsg(GAP_MSG,'in');
       setReplies([
@@ -366,35 +347,18 @@
     },msgDelay('fix')));
   }
 
-  function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); timers.push(setTimeout(()=>el.classList.remove('on'),2200)); }
-
   function reset(){
     timers.forEach(clearTimeout); ticks.forEach(clearInterval); timers=[]; ticks=[];
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
     $('threadBody').innerHTML='<div class="day">Today</div>'; setReplies([]); $('banner').classList.remove('on');
-    $('tip').classList.remove('on'); $('cap').textContent=''; $('cap').classList.remove('out');
+    $('tip').classList.remove('on');
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.q').forEach(q=>q.classList.remove('fadein'));
     syncWs(); go('jobs');
   }
 
   // ---- autoplay: drives the same handlers a finger would
-  const CAPS = [
-    'Engineer opens a warranty job.',
-    'A text arrives.',
-    'He fills the card as usual.',
-    'He completes the job and leaves.',
-    'A second text, before it leaves the yard.',
-    'Fixed at the machine, not three weeks later.'
-  ];
   const CPS = 22;   // ms per character, ~45 chars/s
-
-  function caption(text){
-    const c=$('cap');
-    if(RM){ c.textContent=text; return; }
-    c.classList.add('out');
-    at(200,()=>{ c.textContent=text; c.classList.remove('out'); });
-  }
   function reveal(el){
     const c=el.closest('.content'); if(!c) return;
     const r=el.getBoundingClientRect(), b=c.getBoundingClientRect(); let d=0;
@@ -403,8 +367,8 @@
     if(d) c.scrollTo({top:c.scrollTop+d,behavior:RM?'auto':'smooth'});
   }
   function moveTip(el){
-    const tip=$('tip'), st=document.querySelector('.stage');
-    const r=el.getBoundingClientRect(), w=st.getBoundingClientRect();
+    const tip=$('tip'), frame=$('phone');
+    const r=el.getBoundingClientRect(), w=frame.getBoundingClientRect();
     const x=r.left-w.left+r.width/2-22, y=r.top-w.top+r.height/2-22;
     if(!tip.classList.contains('on')){
       tip.style.transition='none'; tip.style.transform=`translate(${x}px,${y+54}px)`;
@@ -443,31 +407,22 @@
   function play(){
     reset(); t0=Date.now();
     go('job');                                     // 0.0  straight into the job, no jobs list
-    at(300,()=>caption(CAPS[0]));
     tapAt(2000,()=>$('startBtn'));                 // 2.0  the only finger on this screen
-    at(3900,()=>caption(CAPS[1]));                 // 3.5  banner lands (msgDelay), caption after it
     at(5000,()=>$('banner').click());              // 5.0  cut to the thread, then 6 s of nothing
     at(11500,()=>go('job'));                       // 11.5 two 250 ms cuts back into the card
     at(11750,()=>go('worksheet'));
-    at(12100,()=>caption(CAPS[2]));
     at(12500,fadeFill);                            // 12.5 filled, bar the Cause
     at(13600,()=>reveal($('q-cause')));
     at(14000,()=>type($('q-cause'),FILL.cause));   // 14.0 types, then holds 1.5 s
     tapAt(16000,()=>$('saveBtn'));                 // 16.0 save…
     at(16400,doComplete);                          //      …which completes it here
-    at(16800,()=>caption(CAPS[3]));
-    at(19900,()=>caption(CAPS[4]));                // 19.5 banner lands (msgDelay)
     at(21000,()=>$('banner').click());             // 21.0 gap message, then 7 s of nothing
     tapAt(28500,()=>$('replies').querySelector('button'));
-    at(31400,()=>caption(CAPS[5]));                // 31.0 confirmation lands (msgDelay)
     at(39500,()=>document.querySelector('.stage').classList.add('fade'));   // 37.0 + 3 s hold
     at(40000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
   }
 
-  $('mode').textContent = AUTO?'Try it yourself':'Watch it play';
-  $('mode').href = AUTO?'?manual':'/';
-  if(AUTO){ document.body.classList.add('auto'); play(); }
-  else { reset(); $('cap').textContent='Your turn — open the Ashcroft job and work it through.'; }
+  if(AUTO){ document.body.classList.add('auto'); play(); } else reset();
 })();
 </script>
 </body>
