@@ -111,6 +111,9 @@
     transition:transform .4s cubic-bezier(.4,.1,.2,1),opacity .2s}
   .tip.on{opacity:1}
   .tip.pulse{animation:ping .3s ease}
+  .auto .screen.on{animation:cut .25s ease both}
+  .q.fadein input,.q.fadein textarea,.q.fadein .photo,.q.fadein .tog{animation:cut .45s ease both}
+  @keyframes cut{from{opacity:0}}
   @keyframes ping{50%{transform:scale(.82);background:rgba(255,255,255,.45)}}
   @media (max-width:430px){
     .stage{padding:0;gap:0;height:100dvh;min-height:0;justify-content:flex-start;overflow:hidden}
@@ -299,7 +302,7 @@
   }
 
   // ---- messages
-  const START_MSG = `<b>Job 48213 · Develon DX300LC-7K</b>\nIn warranty (1,240 h, delivered 7 weeks ago). Hydraulic breakdown.\n\nDevelon will ask for these — grab them before you leave:<ol><li>Photo of the hour meter</li><li>Photo of the failed part in situ, before removal</li><li>Case-drain flow on the main pump (their spec is ~0.2 L/min at rated rpm) — that's what condemns it</li><li>What was in the return filter / oil — they'll want to rule out contamination</li></ol>Reply here as you go, or ignore me — I'll check the card when you complete it.`;
+  const START_MSG = `<b>Job 48213 · Develon DX300LC-7K</b>\nDevelon will ask for these — grab them before you leave:<ol><li>Photo of the hour meter</li><li>Photo of the pump in situ, before removal</li><li>Case-drain flow reading — that's what condemns it</li></ol>Reply here as you go, or ignore me — I'll check the card when you complete it.`;
   const GAP_MSG = `<b>Job 48213</b> — thanks, that's nearly there. Before the office sends it to Develon, two things they'll bounce it for:<ol><li><b>Why the pump failed.</b> "Worn" reads as wear, not a defect — wear isn't covered. What did you find on strip? Scoring, contamination, seal failure?</li><li><b>What you measured.</b> There's no case-drain figure on the card. Develon needs the number that condemned the pump.</li></ol>Reply here and I'll put it on the card, or add it yourself.`;
   const OK_MSG = `Added to Cause on job 48213.\n\n<span class="good">Develon check: nothing missing.</span> The office can send it. Cheers — enjoy the rest of the shift.`;
   const REPLY_TXT = `Case drain 1.1 L/min at 2,000 rpm — spec is 0.2. Swash plate scored, metal in the return filter. Oil sample taken, no water.`;
@@ -318,7 +321,7 @@
     if(!AUTO) return kind==='start'?1500:kind==='complete'?3500:1200;
     if(kind==='start') return 1500;                              // tapped at 1.5 s -> banner at 3.0 s
     if(kind==='complete') return Math.max(700,19500-elapsed());  // banner at 19.5 s
-    return Math.max(600,27500-elapsed());                        // confirmation at 27.5 s
+    return Math.max(600,31000-elapsed());                        // confirmation at 31.0 s
   }
 
   function notify(body,onOpen){
@@ -335,7 +338,7 @@
     timers.push(setTimeout(()=>{
       addMsg(START_MSG,'in');
       setReplies([['👍 Got it',()=>{addMsg('👍','out');setReplies([]);}]]);
-      notify('Develon will ask for 4 things on this job — hour meter photo, pump in situ, case-drain flow, filter condition.',()=>{state.threadFrom='job';go('thread');});
+      notify('Develon will ask for 3 things on this job — hour meter photo, pump in situ, case-drain flow.',()=>{state.threadFrom='job';go('thread');});
     },msgDelay('start')));
   });
 
@@ -370,16 +373,18 @@
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
     $('threadBody').innerHTML='<div class="day">Today</div>'; setReplies([]); $('banner').classList.remove('on');
     $('tip').classList.remove('on'); $('cap').textContent=''; $('cap').classList.remove('out');
+    document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
+    document.querySelectorAll('.q').forEach(q=>q.classList.remove('fadein'));
     syncWs(); go('jobs');
   }
 
   // ---- autoplay: drives the same handlers a finger would
   const CAPS = [
-    'Engineer opens a warranty job in the app he already uses.',
-    'A text arrives: what Develon will ask for.',
-    'He writes the card the usual way.',
-    'He completes the job and packs up.',
-    'Before it leaves the yard: a text with the two things that would get it bounced.',
+    'Engineer opens a warranty job.',
+    'A text arrives.',
+    'He fills the card as usual.',
+    'He completes the job and leaves.',
+    'A second text, before it leaves the yard.',
     'Fixed at the machine, not three weeks later.'
   ];
   const CPS = 22;   // ms per character, ~45 chars/s
@@ -409,7 +414,7 @@
   }
   function tapAt(t,get){            // element is clicked at t ms into the loop
     const tip=$('tip');
-    at(Math.max(0,t-700),()=>{ const el=get(); if(el) reveal(el); });
+    at(Math.max(0,t-900),()=>{ const el=get(); if(el) reveal(el); });
     if(!RM){
       at(Math.max(0,t-450),()=>{ const el=get(); if(el) moveTip(el); });
       at(Math.max(0,t-120),()=>tip.classList.add('pulse'));
@@ -426,46 +431,42 @@
     },CPS);
     ticks.push(id);
   }
-  function typeFill(done){          // top to bottom, the order an engineer works down the card
-    const steps=[
-      cb=>type($('q-hours'),FILL.hours,cb),
-      cb=>{ $('q-hourphoto').click(); at(200,cb); },
-      cb=>{ $('q-partphoto').click(); at(200,cb); },
-      cb=>type($('q-complaint'),FILL.complaint,cb),
-      cb=>type($('q-cause'),FILL.cause,()=>at(1000,cb)),
-      cb=>type($('q-correction'),FILL.correction,cb),
-      cb=>{ $('op-yes').click(); at(150,cb); }
-    ];
-    (function next(i){ if(i>=steps.length){ readWs(); syncJob(); done(); return; } steps[i](()=>next(i+1)); })(0);
+  function fadeFill(){              // the card as the engineer would have filled it, bar the Cause
+    Object.assign(state,{hours:FILL.hours,hourPhoto:true,partPhoto:true,op:'yes',
+      complaint:FILL.complaint,correction:FILL.correction});
+    syncWs(); syncJob();
+    document.querySelectorAll('#wsForm .q:not(#wrap-cause)').forEach(q=>{
+      q.classList.remove('fadein'); void q.offsetWidth; q.classList.add('fadein');
+    });
   }
 
   function play(){
     reset(); t0=Date.now();
-    caption(CAPS[0]);
-    tapAt(900,()=>$('jobMain'));                      // 0.0 jobs list
-    tapAt(1500,()=>$('startBtn'));                    // 1.5 job detail
-    at(3000,()=>caption(CAPS[1]));                    // 3.0 banner lands (msgDelay)
-    tapAt(4500,()=>$('banner'));                      // 4.5 thread, Start message
-    at(9000,()=>caption(CAPS[2]));
-    tapAt(9000,()=>$('threadBack'));                  // 9.0 back to the job
-    tapAt(9500,()=>$('wsRow'));                       // 9.5 worksheet
-    at(9700,()=>typeFill(()=>{
-      const save=Math.max(200,16000-elapsed());
-      tapAt(save,()=>$('saveBtn'));                   // 16.0 save
-      tapAt(save+800,()=>$('completeBtn'));           //      complete -> jobs list
-    }));
-    at(16000,()=>caption(CAPS[3]));
-    at(19500,()=>caption(CAPS[4]));                   // 19.5 banner lands (msgDelay)
-    tapAt(21000,()=>$('banner'));                     // 21.0 thread, gap message
-    tapAt(26000,()=>$('replies').querySelector('button'));
-    at(27500,()=>caption(CAPS[5]));                   // 27.5 confirmation lands (msgDelay)
-    at(33500,()=>document.querySelector('.stage').classList.add('fade'));   // 31.0 + 3 s hold
-    at(34000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
+    go('job');                                     // 0.0  straight into the job, no jobs list
+    at(300,()=>caption(CAPS[0]));
+    tapAt(2000,()=>$('startBtn'));                 // 2.0  the only finger on this screen
+    at(3900,()=>caption(CAPS[1]));                 // 3.5  banner lands (msgDelay), caption after it
+    at(5000,()=>$('banner').click());              // 5.0  cut to the thread, then 6 s of nothing
+    at(11500,()=>go('job'));                       // 11.5 two 250 ms cuts back into the card
+    at(11750,()=>go('worksheet'));
+    at(12100,()=>caption(CAPS[2]));
+    at(12500,fadeFill);                            // 12.5 filled, bar the Cause
+    at(13600,()=>reveal($('q-cause')));
+    at(14000,()=>type($('q-cause'),FILL.cause));   // 14.0 types, then holds 1.5 s
+    tapAt(16000,()=>$('saveBtn'));                 // 16.0 save…
+    at(16400,doComplete);                          //      …which completes it here
+    at(16800,()=>caption(CAPS[3]));
+    at(19900,()=>caption(CAPS[4]));                // 19.5 banner lands (msgDelay)
+    at(21000,()=>$('banner').click());             // 21.0 gap message, then 7 s of nothing
+    tapAt(28500,()=>$('replies').querySelector('button'));
+    at(31400,()=>caption(CAPS[5]));                // 31.0 confirmation lands (msgDelay)
+    at(39500,()=>document.querySelector('.stage').classList.add('fade'));   // 37.0 + 3 s hold
+    at(40000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
   }
 
   $('mode').textContent = AUTO?'Try it yourself':'Watch it play';
   $('mode').href = AUTO?'?manual':'/';
-  if(AUTO) play();
+  if(AUTO){ document.body.classList.add('auto'); play(); }
   else { reset(); $('cap').textContent='Your turn — open the Ashcroft job and work it through.'; }
 })();
 </script>

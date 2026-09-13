@@ -5,9 +5,9 @@
   python3 tools/record.py --skip-og  # videos only
 
 Outputs (video/ is gitignored):
-  video/raw/desktop.webm      1280x720, one full 34 s loop
-  video/raw/mobile.webm       390x844,  one full 34 s loop
-  video/shots/t{5,12,22,28}.png  verification frames
+  video/raw/desktop.webm      1280x720, one full 40 s loop
+  video/raw/mobile.webm       390x844,  one full 40 s loop
+  video/shots/t{6,15,23,32}.png  verification frames
   public/og.png               1200x630 share image, the 21.0 s state
 Then run tools/make-video.sh to produce the mp4s and the gif.
 """
@@ -25,8 +25,8 @@ from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 VIDEO = ROOT / "video"
-LOOP_MS = 34_000          # one full loop of the timeline
-SHOTS_MS = (5_000, 12_000, 22_000, 28_000)
+LOOP_MS = 40_000          # one full loop of the timeline
+SHOTS_MS = (6_000, 15_000, 23_000, 32_000)
 OG_MS = 21_600            # the 21.0 s beat: thread open on the gap message
 
 
