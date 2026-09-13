@@ -1,0 +1,3 @@
+{"name":"field-demo","private":true,
+ "scripts":{"start":"serve -s public -l $PORT"},
+ "dependencies":{"serve":"^14"}}
