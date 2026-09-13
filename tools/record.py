@@ -5,10 +5,10 @@
   python3 tools/record.py --skip-og  # videos only
 
 Outputs (video/ is gitignored):
-  video/raw/desktop.webm      1280x720, one full 26 s loop
-  video/raw/mobile.webm       390x844,  one full 26 s loop
-  video/shots/t{3,9,14,21}.png   verification frames
-  public/og.png               1200x630 share image, the 13.5 s state
+  video/raw/desktop.webm      1280x720, one full 34 s loop
+  video/raw/mobile.webm       390x844,  one full 34 s loop
+  video/shots/t{5,12,22,28}.png  verification frames
+  public/og.png               1200x630 share image, the 21.0 s state
 Then run tools/make-video.sh to produce the mp4s and the gif.
 """
 import argparse
@@ -25,9 +25,9 @@ from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 VIDEO = ROOT / "video"
-LOOP_MS = 26_000          # one full loop of the timeline
-SHOTS_MS = (3_000, 9_000, 14_000, 21_000)
-OG_MS = 15_500            # the 13.5 s beat, once the second text has landed
+LOOP_MS = 34_000          # one full loop of the timeline
+SHOTS_MS = (5_000, 12_000, 22_000, 28_000)
+OG_MS = 21_600            # the 21.0 s beat: thread open on the gap message
 
 
 def serve(directory):
@@ -76,6 +76,13 @@ def og_image(browser, base):
     page = ctx.new_page()
     page.goto(base, wait_until="load")
     page.wait_for_timeout(OG_MS)
+    # frame the share image on the top of the gap message rather than the tail of the thread
+    page.evaluate(
+        "() => { const m = [...document.querySelectorAll('#threadBody .msg.in')].pop();"
+        " const c = document.getElementById('threadBody');"
+        " if (m) c.scrollTop += m.getBoundingClientRect().top - c.getBoundingClientRect().top - 8; }"
+    )
+    page.wait_for_timeout(120)
     page.screenshot(path=str(PUBLIC / "og.png"))
     ctx.close()
     print("wrote public/og.png (1200x630)")
