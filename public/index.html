@@ -81,16 +81,11 @@
   .thread .content{background:var(--thread);padding:12px 12px 8px;display:flex;flex-direction:column;gap:8px}
   .msg{max-width:86%;padding:9px 11px;border-radius:12px;font-size:14px;line-height:1.4;background:var(--bubble-in);box-shadow:0 1px 1px rgba(0,0,0,.08);white-space:pre-wrap;position:relative}
   .msg.in{align-self:flex-start;border-top-left-radius:4px}
-  .msg.out{align-self:flex-end;background:var(--bubble-out);color:#fff;border-top-right-radius:4px}
   .msg .ts{display:block;font-size:10px;color:#7d8790;text-align:right;margin-top:4px}
-  .msg.out .ts{color:rgba(255,255,255,.78)}
   .msg ol{padding-left:18px;margin:6px 0 2px}
   .msg li{margin:3px 0}
   .msg .good{color:var(--ok);font-weight:700}
   .day{align-self:center;font-size:11px;background:#E3E7EB;color:#5B6770;padding:3px 9px;border-radius:8px;margin:2px 0}
-  .replies{display:flex;flex-direction:column;gap:6px;padding:8px 12px;background:var(--thread)}
-  .replies button{border:1.5px solid var(--mp);color:var(--mp);background:#fff;border-radius:18px;padding:8px 12px;font-size:13px;font-weight:600;text-align:left;line-height:1.3}
-  .replies button.open{background:var(--mp);color:#fff}
   .composer{display:flex;gap:8px;padding:8px 12px 14px;background:#EDF0F3;border-top:1px solid #DFE4E9}
   .composer div{flex:1;height:38px;border-radius:19px;background:#fff;border:1px solid #DFE4E9;color:#A3A9AF;font-size:14px;display:flex;align-items:center;padding:0 14px}
   .composer span{width:38px;height:38px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:16px}
@@ -185,7 +180,6 @@
     <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
     <div class="topbar"><button class="back" id="threadBack" aria-label="Back">‹</button><div class="av" aria-hidden="true"></div><div class="nm">Machinery Pilot</div></div>
     <div class="content" id="threadBody"><div class="day">Today</div></div>
-    <div class="replies" id="replies"></div>
     <div class="composer"><div>Message</div><span>➤</span></div>
   </section>
 
@@ -285,24 +279,16 @@
   // ---- messages
   const START_MSG = `<b>Job 48213 · Develon DX300LC-7K</b>\nDevelon will ask for these — grab them before you leave:<ol><li>Photo of the hour meter</li><li>Photo of the pump in situ, before removal</li><li>Case-drain flow reading — that's what condemns it</li></ol>Reply here as you go, or ignore me — I'll check the card when you complete it.`;
   const GAP_MSG = `<b>Job 48213</b> — thanks, that's nearly there. Before the office sends it to Develon, two things they'll bounce it for:<ol><li><b>Why the pump failed.</b> "Worn" reads as wear, not a defect — wear isn't covered. What did you find on strip? Scoring, contamination, seal failure?</li><li><b>What you measured.</b> There's no case-drain figure on the card. Develon needs the number that condemned the pump.</li></ol>Reply here and I'll put it on the card, or add it yourself.`;
-  const OK_MSG = `Added to Cause on job 48213.\n\n<span class="good">Develon check: nothing missing.</span> The office can send it. Cheers — enjoy the rest of the shift.`;
-  const REPLY_TXT = `Case drain 1.1 L/min at 2,000 rpm — spec is 0.2. Swash plate scored, metal in the return filter. Oil sample taken, no water.`;
 
   function addMsg(html,dir){
     const m=document.createElement('div'); m.className='msg '+dir; m.innerHTML=html+`<span class="ts">${dir==='in'?stamp():stamp()}</span>`;
     $('threadBody').appendChild(m); $('threadBody').scrollTop=1e6;
   }
   function stamp(){ const d=new Date(); return d.toTimeString().slice(0,5); }
-  function setReplies(list){
-    const r=$('replies'); r.innerHTML='';
-    list.forEach(([label,fn,cls])=>{ const b=document.createElement('button'); b.textContent=label; if(cls) b.className=cls; b.addEventListener('click',fn); r.appendChild(b); });
-  }
-
   function msgDelay(kind){
-    if(!AUTO) return kind==='start'?1500:kind==='complete'?3500:1200;
-    if(kind==='start') return 1500;                              // tapped at 1.5 s -> banner at 3.0 s
-    if(kind==='complete') return Math.max(700,19500-elapsed());  // banner at 19.5 s
-    return Math.max(600,31000-elapsed());                        // confirmation at 31.0 s
+    if(!AUTO) return kind==='start'?1500:3500;
+    if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
+    return Math.max(700,27000-elapsed());                        // banner at 27.0 s
   }
 
   function notify(body,onOpen){
@@ -318,7 +304,6 @@
     if(!AUTO) at(600,fillWorksheet);   // manual: the card arrives filled, so Complete is always reachable
     timers.push(setTimeout(()=>{
       addMsg(START_MSG,'in');
-      setReplies([['👍 Got it',()=>{addMsg('👍','out');setReplies([]);}]]);
       notify('Develon will ask for 3 things on this job — hour meter photo, pump in situ, case-drain flow.',()=>{state.threadFrom='job';go('thread');});
     },msgDelay('start')));
   });
@@ -331,26 +316,14 @@
     state.completed=true; state.doneAt=stamp(); go('jobs');
     timers.push(setTimeout(()=>{
       addMsg(GAP_MSG,'in');
-      setReplies([
-        [REPLY_TXT, sendFix, 'open'],
-        ['Open the job card', ()=>{state.threadFrom='thread'; go('worksheet');}]
-      ]);
       notify('2 things Develon will bounce this for — why the pump failed, and the case-drain figure. 1 min to fix.',()=>{state.threadFrom='jobs';go('thread');});
     },msgDelay('complete')));
-  }
-
-  function sendFix(){
-    addMsg(REPLY_TXT.replace(/</g,'&lt;'),'out'); setReplies([]);
-    timers.push(setTimeout(()=>{
-      state.cause=(state.cause?state.cause+' ':'')+'Case drain 1.1 L/min at 2,000 rpm (spec 0.2). Swash plate scored, metal in return filter. Oil sample taken, no water — internal pump failure, not contamination.';
-      state.fixed=true; addMsg(OK_MSG,'in');
-    },msgDelay('fix')));
   }
 
   function reset(){
     timers.forEach(clearTimeout); ticks.forEach(clearInterval); timers=[]; ticks=[];
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
-    $('threadBody').innerHTML='<div class="day">Today</div>'; setReplies([]); $('banner').classList.remove('on');
+    $('threadBody').innerHTML='<div class="day">Today</div>'; $('banner').classList.remove('on');
     $('tip').classList.remove('on');
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.q').forEach(q=>q.classList.remove('fadein'));
@@ -406,19 +379,17 @@
 
   function play(){
     reset(); t0=Date.now();
-    go('job');                                     // 0.0  straight into the job, no jobs list
-    tapAt(2000,()=>$('startBtn'));                 // 2.0  the only finger on this screen
-    at(5000,()=>$('banner').click());              // 5.0  cut to the thread, then 6 s of nothing
-    at(11500,()=>go('job'));                       // 11.5 two 250 ms cuts back into the card
-    at(11750,()=>go('worksheet'));
-    at(12500,fadeFill);                            // 12.5 filled, bar the Cause
-    at(13600,()=>reveal($('q-cause')));
-    at(14000,()=>type($('q-cause'),FILL.cause));   // 14.0 types, then holds 1.5 s
-    tapAt(16000,()=>$('saveBtn'));                 // 16.0 save…
-    at(16400,doComplete);                          //      …which completes it here
-    at(21000,()=>$('banner').click());             // 21.0 gap message, then 7 s of nothing
-    tapAt(28500,()=>$('replies').querySelector('button'));
-    at(39500,()=>document.querySelector('.stage').classList.add('fade'));   // 37.0 + 3 s hold
+    go('job');                                     //  0.0  job detail, dwell 4.0
+    tapAt(4000,()=>$('startBtn'));                 //  4.0  taps Start, dwell 2.0
+    at(8000,()=>$('banner').click());              //  8.0  thread: Start text, dwell 7.0
+    at(15000,()=>go('job'));                       // 15.0  back to the job, then the card, dwell 2.0
+    at(15250,()=>go('worksheet'));
+    at(17000,fadeFill);                            // 17.0  filled bar the Cause, dwell 4.0
+    at(21000,()=>type($('q-cause'),FILL.cause));   // 21.0  Cause types, dwell 3.0
+    tapAt(24000,()=>$('saveBtn'));                 // 24.0  taps Save…
+    at(24400,doComplete);                          //       …which completes it, dwell 3.0
+    at(30000,()=>$('banner').click());             // 30.0  thread: gap text, dwell 10.0
+    at(39500,()=>document.querySelector('.stage').classList.add('fade'));
     at(40000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
   }
 
