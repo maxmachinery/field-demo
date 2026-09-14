@@ -97,11 +97,20 @@
     margin:12px 0 7px;font-size:12px;line-height:1.3;color:#8E8E93;text-align:center}
   .msg{max-width:82%;padding:10px 14px;border-radius:20px;font-size:17px;line-height:1.45;background:var(--bubble-in);color:#000;white-space:pre-wrap}
   .msg.in{align-self:flex-start;border-bottom-left-radius:6px}
+  .msg.big{font-size:18px}
   .composer{display:flex;gap:8px;padding:8px 12px 14px;background:#F7F7F8;border-top:1px solid #D6D6DA}
   .composer div{flex:1;height:38px;border-radius:19px;background:#fff;border:1px solid #D6D6DA;color:#8E8E93;font-size:15px;display:flex;align-items:center;padding:0 14px}
   .composer span{width:38px;height:38px;border-radius:50%;background:#C4C4C9;color:#fff;display:grid;place-items:center;font-size:16px}
   .q.ok{box-shadow:inset 4px 0 0 var(--ok);background:#F5FBF7}
   .fade3{animation:cut .3s ease}
+  /* app label, pause pill */
+  .apptag{position:absolute;top:104px;right:12px;z-index:15;padding:4px 10px;border-radius:999px;
+    background:#E7EAEE;color:#5B6770;font-size:11.5px;font-weight:600;opacity:0;transition:opacity .35s;pointer-events:none}
+  .apptag.on{opacity:1}
+  .paused{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;pointer-events:none;
+    padding:6px 15px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:12.5px;font-weight:600;
+    opacity:0;transition:opacity .2s}
+  .paused.on{opacity:1}
   /* title cards (own names: .card/.row/.h belong to the job screens) */
   .title-card{background:#15191D}
   .title-card .tc{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:26px 24px;text-align:center}
@@ -109,13 +118,17 @@
   .title-card .brand{font-size:15px;font-weight:600;color:#4A8FD1;margin-bottom:2px}
   /* end card */
   .end-card{background:#15191D}
-  .end-card .ec{flex:1;display:flex;flex-direction:column;padding:26px 22px 28px}
+  .end-card .ec{flex:1;display:flex;flex-direction:column;padding:26px 22px 26px}
+  .end-card .hl{font-size:19px;font-weight:600;line-height:1.35;color:#fff;text-align:center}
+  .end-card .proof{margin-top:16px;font-size:14px;line-height:1.4;color:#8E99A3;text-align:center}
+  .end-card .replay{padding:9px 22px;border:1px solid #4A8FD1;border-radius:22px;background:transparent;
+    color:#4A8FD1;font-size:15px;font-weight:500}
+  .end-card .replay:hover{background:rgba(74,143,209,.12)}
   .end-card .steps{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;list-style:none;counter-reset:s}
   .end-card .steps li{position:relative;padding-left:27px;font-size:17px;line-height:1.5;color:#fff}
   .end-card .steps li::before{counter-increment:s;content:counter(s) ".";position:absolute;left:0;color:#4A8FD1;font-weight:600}
-  .end-card .sig{padding-top:26px;text-align:center}
-  .end-card .sig b{display:block;font-size:15px;font-weight:600;color:#fff}
-  .end-card .sig span{display:block;margin-top:3px;font-size:13px;color:#8E99A3}
+  .end-card .sig{padding-top:22px;text-align:center}
+  .end-card .sig span{display:block;margin-top:12px;font-size:13px;color:#8E99A3}
   /* desktop progress strip */
   .strip{display:none;gap:9px;align-items:center;font-size:12.5px}
   .strip b{font-weight:500;color:#66727C;transition:color .3s}
@@ -139,6 +152,7 @@
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
     .statusbar{display:none}
     .banner{top:10px}
+    .apptag{top:60px}
   }
   @media (min-height:848px) and (min-width:431px){
     .auto .strip{display:flex}
@@ -156,34 +170,37 @@
 <div class="phone" id="phone">
 
   <div class="tip" id="tip" aria-hidden="true"></div>
+  <div class="apptag" id="appTag">Ibcos Gold · job card</div>
+  <div class="paused" id="pausedPill">Paused</div>
 
   <!-- TITLE CARDS -->
   <section class="screen title-card" id="s-c1">
     <div class="tc">
-      <p>A dealer's engineer fixes a machine under warranty.</p>
-      <p>The OEM rejects the claim: "insufficient evidence."</p>
-      <p>The dealer eats the bill.</p>
+      <p>Machinery Pilot checks dealers’ job cards and texts engineers what’s missing while they’re still at the machine.</p>
     </div>
   </section>
   <section class="screen title-card" id="s-c2">
     <div class="tc">
       <b class="brand">Machinery Pilot</b>
-      <p>We text the engineer what the OEM needs, and what's missing, before he leaves the machine.</p>
-      <p>No new app. Nothing changes for him.</p>
+      <p>A dealer’s engineer fixes a machine under warranty.</p>
+      <p>The OEM rejects the claim.</p>
+      <p>The dealer does not recover it.</p>
     </div>
   </section>
 
   <!-- END CARD -->
   <section class="screen end-card" id="s-end">
     <div class="ec">
+      <p class="hl">Claims that get paid first time. Keep your existing job app.</p>
       <ol class="steps">
-        <li>Use Ibcos, JobWatch or whatever you have. Nothing changes.</li>
-        <li>Get the OEM's evidence list by text when the job opens.</li>
+        <li>Keep Ibcos, JobWatch or whatever you have.</li>
+        <li>Get the OEM’s evidence list by text when the job opens.</li>
         <li>Fill the job card as usual.</li>
-        <li>Get told exactly what's missing before you leave the machine.</li>
-        <li>Nothing to chase. Nothing to rebuild. Nothing rejected for evidence.</li>
+        <li>Get told exactly what’s missing while you’re still at the machine.</li>
+        <li>Evidence complete before the claim leaves the yard.</li>
       </ol>
-      <div class="sig"><b>Machinery Pilot</b><span>machinerypilot.com</span></div>
+      <p class="proof" id="proofPoint" hidden></p>
+      <div class="sig"><button class="replay" id="replayBtn">Replay</button><span>machinerypilot.com</span></div>
     </div>
   </section>
 
@@ -199,14 +216,14 @@
 
   <!-- JOBS LIST -->
   <section class="screen on" id="s-jobs">
-    <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
+    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
     <div class="topbar"><span style="font-size:18px">☰</span><span>Jobs (3)</span></div>
     <div class="content" id="jobsList"></div>
   </section>
 
   <!-- JOB DETAIL -->
   <section class="screen" id="s-job">
-    <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
+    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
     <div class="topbar"><button class="back" data-go="jobs" aria-label="Back">‹</button><span>Job 48213</span><span class="spacer"></span><button class="tick" id="tickBtn" aria-label="Complete job" title="Complete job">✓</button></div>
     <div class="content">
       <div class="machine">
@@ -218,7 +235,7 @@
       <div class="h">Tasks</div>
       <div class="card">
         <button class="row"><span>Risk assessment</span><span class="prog ok">Signed 13:52</span></button>
-        <button class="row" id="wsRow" data-go="worksheet"><span>Worksheet, hydraulic breakdown</span><span><span class="prog" id="wsProg">0 of 7</span><span class="chev">›</span></span></button>
+        <button class="row" id="wsRow" data-go="worksheet"><span>Worksheet – Hydraulic breakdown</span><span><span class="prog" id="wsProg">0 of 7</span><span class="chev">›</span></span></button>
         <button class="row"><span>Parts used</span><span><span class="prog" id="partsProg">None</span><span class="chev">›</span></span></button>
         <button class="row"><span>Photos</span><span><span class="prog" id="photoProg">0</span><span class="chev">›</span></span></button>
       </div>
@@ -229,7 +246,7 @@
 
   <!-- WORKSHEET -->
   <section class="screen" id="s-ws">
-    <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
+    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
     <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span id="wsTitle"></span></div>
     <div class="content" id="wsForm">
       <div class="q"><label>Hour meter reading<i>*</i></label><input id="q-hours" inputmode="numeric" placeholder="e.g. 1240"></div>
@@ -245,12 +262,12 @@
 
   <!-- THREAD -->
   <section class="screen thread" id="s-thread">
-    <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
+    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
     <div class="topbar">
       <button class="back" id="threadBack" aria-label="Back">‹</button>
       <div class="who">
         <div class="av" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="26" r="11"/><path d="M10 62c0-12 10-19 22-19s22 7 22 19z"/></svg></div>
-        <div class="nm">Machinery Pilot - AI Job Card Support <i>›</i></div>
+        <div class="nm">Machinery Pilot · Warranty Support <i>›</i></div>
       </div>
     </div>
     <div class="content" id="threadBody"></div>
@@ -274,13 +291,26 @@
   const elapsed = () => Date.now()-t0;
   const state = {started:false, completed:false, fixed:false, threadFrom:'job',
     hours:'', hourPhoto:false, partPhoto:false, complaint:'', cause:'', correction:'', op:null, banner:null};
-  let timers=[];
-  function at(ms,fn){ timers.push(setTimeout(fn,ms)); }
+  let timers=[], paused=false, pausedAt=0;
+  function arm(e,ms){ e.id=setTimeout(()=>{ const i=timers.indexOf(e); if(i>=0) timers.splice(i,1); e.fn(); },ms); }
+  function at(ms,fn){ const e={due:elapsed()+ms,fn,id:null}; arm(e,ms); timers.push(e); }
+  function clearTimers(){ timers.forEach(e=>clearTimeout(e.id)); timers=[]; }
+  function togglePause(){
+    if(!AUTO) return;
+    if(paused){ t0+=Date.now()-pausedAt; paused=false; $('pausedPill').classList.remove('on');
+      timers.forEach(e=>arm(e,Math.max(0,e.due-elapsed())));
+    } else { paused=true; pausedAt=Date.now(); timers.forEach(e=>clearTimeout(e.id));
+      $('pausedPill').classList.add('on'); }
+  }
 
   const JOB='48213', MAKE='Develon', MODEL='DX300LC-7K';
   const REF=`Job ${JOB} | ${MAKE} ${MODEL}`;
-  const H={brief:`Warranty Briefing – ${REF}`, feedback:`Warranty Feedback – ${REF}`, worksheet:`Worksheet – ${REF}`};
-  $('wsTitle').textContent=H.worksheet;
+  const H={brief:`Warranty Briefing – ${REF}`, feedback:`Warranty Feedback – ${REF}`};
+  $('wsTitle').textContent='Worksheet – Hydraulic breakdown';
+  const CLOCK={open:'13:58', started:'13:59', done:'14:31', resolved:'14:34'};
+  const CLKS=[...document.querySelectorAll('.clk')];
+  function setClock(t){ CLKS.forEach(e=>e.textContent=t); }
+  const PROOF_POINT='';            // one line of proof under the steps; empty hides it
 
   const JOBS = [
     {t:'08:30', who:'Brackley Aggregates', type:'Service, 500 h', where:'Doosan DX140LC · Brackley NN13', dist:'18 mi', done:true},
@@ -294,7 +324,7 @@
       const b=document.createElement('button');
       const done = j.done || (j.main && state.completed);
       b.className='job'+(done?' done':'');
-      const doneTxt = j.main ? (state.fixed?'Completed · Develon check clear':'Completed '+state.doneAt) : 'Completed 10:05';
+      const doneTxt = j.main ? (state.fixed?'Completed · Evidence complete':'Completed '+state.doneAt) : 'Completed 10:05';
       b.innerHTML=`<div class="t">${j.t}</div><div><div class="who">${j.who}${j.pill&&!done?`<span class="pill">${j.pill}</span>`:''}</div><div class="type">${done?doneTxt:j.type}</div><div class="where">${j.where}</div></div><div class="dist">${j.dist} ›</div>`;
       if(j.main){ b.id='jobMain'; b.addEventListener('click',()=>go('job')); }
       el.appendChild(b);
@@ -361,25 +391,24 @@
 
   // ---- messages
   const START_MSG = `<b>${H.brief}</b>
-Develon's warranty team requires:
+Develon’s warranty team requires:
 1. Photo of the hour meter
 2. Photo of the failed part in situ, before removal
-3. Case-drain flow reading on the main pump
-4. Photo of the fault code on the dash
-5. Return filter and oil condition, with photo`;
+3. Case-drain flow reading on the main pump`;
   const GAP_MSG = `<b>${H.feedback}</b>
-Thanks for completing the job card. Add two more bits to ensure the claim does not get rejected.
-1. Why the pump failed. "Worn" reads as wear, and wear is not covered. What did you find on strip: scoring, contamination, seal failure?
-2. What you measured. There is no case-drain figure on the card. Develon needs the number that condemned the pump.
+Thanks for completing the card. 2 of 3 received: hour meter, pump in situ.
+Two things to add:
+1. <b>The cause says “Main pump worn.”</b> Develon needs what you found: scoring, contamination, seal failure?
+2. <b>The case-drain figure</b> that condemned the pump.
 Thanks for your help!`;
+  const DONE_MSG = `Received. Evidence complete for Develon. Ready for the office.`;
 
-  function addMsg(html,dir,when){
+  function addMsg(html,dir,when,cls){
     const t=document.createElement('div'); t.className='stamp';
     t.innerHTML='<span>Text Message • SMS</span><span>Today at '+when+'</span>';
-    const m=document.createElement('div'); m.className='msg '+dir; m.innerHTML=html;
+    const m=document.createElement('div'); m.className='msg '+dir+(cls?' '+cls:''); m.innerHTML=html;
     $('threadBody').append(t,m); $('threadBody').scrollTop=1e6;
   }
-  function stamp(){ const d=new Date(); return d.toTimeString().slice(0,5); }
   function msgDelay(kind){
     if(!AUTO) return kind==='start'?1500:3500;
     if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
@@ -395,10 +424,10 @@ Thanks for your help!`;
 
   // ---- flow
   $('startBtn').addEventListener('click',()=>{
-    state.started=true; syncJob(); state.startAt=stamp();
+    state.started=true; syncJob(); state.startAt=CLOCK.started; setClock(CLOCK.started);
     if(!AUTO) at(600,fillWorksheet);   // manual: the card arrives filled, so Complete is always reachable
     timers.push(setTimeout(()=>{
-      addMsg(START_MSG,'in','13:59');
+      addMsg(START_MSG,'in',CLOCK.started);
       notify(H.brief,`Develon's warranty team requires 5 items on this job.`,()=>{state.threadFrom='job';go('thread');});
     },msgDelay('start')));
   });
@@ -408,18 +437,18 @@ Thanks for your help!`;
 
   function doComplete(){
     readWsIfOn(); if(wsCount()<7) return;
-    state.completed=true; state.doneAt=stamp(); go('jobs');
+    state.completed=true; state.doneAt=CLOCK.done; setClock(CLOCK.done); go('jobs');
     timers.push(setTimeout(()=>{
-      addMsg(GAP_MSG,'in','14:31');
+      addMsg(GAP_MSG,'in',CLOCK.done,'big');
       notify(H.feedback,'Two more bits to add before the claim goes off.',()=>{state.threadFrom='jobs';go('thread');});
     },msgDelay('complete')));
   }
 
   function reset(){
-    timers.forEach(clearTimeout); timers=[];
+    clearTimers(); paused=false; $('pausedPill').classList.remove('on');
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
     $('threadBody').innerHTML=''; $('banner').classList.remove('on');
-    $('tip').classList.remove('on');
+    $('tip').classList.remove('on'); $('appTag').classList.remove('on'); setClock(CLOCK.open);
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.rise,.fade3').forEach(e=>e.classList.remove('rise','fade3'));
     $('wrap-cause').classList.remove('ok'); STRIP.forEach(b=>b.classList.remove('on'));
@@ -454,9 +483,14 @@ Thanks for your help!`;
     at(t,()=>{ tip.classList.remove('pulse'); const el=get(); if(el) el.click(); });
     at(t+350,()=>tip.classList.remove('on'));
   }
-  const CAUSE_ADD = ' Case drain 1.1 L/min at 2,000 rpm, spec 0.2. Swash plate scored, metal in return filter.';
+  const CAUSE_ADD = ' Swash plate scored, metal in return filter. Case drain 1.1 L/min at 2,000 rpm, spec 0.2.';
   const STRIP=[...document.querySelectorAll('.strip b')];
   function strip(i){ STRIP.forEach((b,k)=>b.classList.toggle('on', i<0 || k===i)); }
+
+  function resolved(){              // the evidence is on the card, so the last text confirms it
+    setClock(CLOCK.resolved); addMsg(DONE_MSG,'in',CLOCK.resolved);
+    notify(H.feedback,'Evidence complete. Ready for the office.',()=>{state.threadFrom='jobs';go('thread');});
+  }
 
   function appendCause(){           // the engineer's answer goes on the card
     state.fixed=true; state.cause=state.cause+CAUSE_ADD; syncWs(); syncJob();
@@ -482,12 +516,13 @@ Thanks for your help!`;
 
   function play(){
     reset(); t0=Date.now();
-    go('c1');                                      //  0.0  title card 1, 4.0
-    at(4000,()=>go('c2'));                         //  4.0  title card 2, 4.0
-    at(8000,()=>{ go('job'); strip(0); });         //  8.0  job detail, 4.0
+    go('c1');                                      //  0.0  card 1, 4.0
+    at(4000,()=>go('c2'));                         //  4.0  card 2, 4.0
+    at(8000,()=>{ go('job'); strip(0); $('appTag').classList.add('on'); });   //  8.0  job detail, 4.0
+    at(11600,()=>$('appTag').classList.remove('on'));
     tapAt(12000,()=>$('startBtn'));                // 12.0  taps Start, 2.0
     at(14000,()=>strip(1));
-    tapAt(16500,()=>$('banner'));                  // 14.0  banner 1, 2.5 -> tapped, thread, 7.0
+    tapAt(16500,()=>$('banner'));                  // 14.0  banner 1, 2.5 -> tapped, text 1, 7.0
     at(23500,()=>go('job'));                       // 23.5  cut back to the job, 2.0
     tapAt(25500,()=>$('wsRow')); at(25500,()=>strip(2));   // 25.5  taps the worksheet row, 1.0
     at(27500,fadeFill);                            // 27.5  seven fields rise, then still, 5.0
@@ -495,17 +530,27 @@ Thanks for your help!`;
     tapAt(32500,()=>$('saveBtn'));                 // 32.5  taps Save...
     at(32900,doComplete);                          //       ...which completes it, 3.0
     at(35500,()=>strip(3));
-    tapAt(39000,()=>$('banner'));                  // 35.5  banner 2, 3.5 -> tapped, thread, 10.0
+    tapAt(39000,()=>$('banner'));                  // 35.5  banner 2, 3.5 -> tapped, text 2, 10.0
     at(49000,()=>strip(4));
-    at(49000,()=>{ state.fixed=true; go('worksheet');                   // 49.0  cut to the card, 2.0
+    at(49000,()=>{ state.fixed=true; go('worksheet');                   // 49.0  cut to the card, 4.0
       const c=$('wsForm'); c.scrollTop=c.scrollHeight; });               //       (fixed first, so no amber flag or focus ring)
     at(49400,appendCause);
-    tapAt(51000,()=>$('saveBtn'));                 // 51.0  taps Save -> jobs list, 3.0
+    tapAt(51000,()=>$('saveBtn'));                 // 51.0  taps Save
     at(51400,()=>go('jobs'));
-    at(54000,()=>go('end')); at(54000,()=>strip(-1));   // 54.0  end card, 7.0
-    at(60500,()=>document.querySelector('.stage').classList.add('fade'));
-    at(61000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
+    at(53000,resolved);                            // 53.0  banner 3, 2.0
+    tapAt(55000,()=>$('banner'));                  // 55.0  tapped, text 3, 5.0
+    at(60000,()=>go('end')); at(60000,()=>strip(-1));   // 60.0  end card, 8.0
+    at(67500,()=>document.querySelector('.stage').classList.add('fade'));
+    at(68000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
   }
+
+  if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
+  $('replayBtn').addEventListener('click',e=>{ e.stopPropagation(); if(AUTO) play(); });
+  $('phone').addEventListener('click',e=>{            // a real tap anywhere pauses; scripted taps do not
+    if(!AUTO || !e.isTrusted || e.target.closest('#replayBtn')) return;
+    e.stopPropagation(); e.preventDefault(); togglePause();
+  },true);
+  addEventListener('keydown',e=>{ if(AUTO && e.code==='Space'){ e.preventDefault(); togglePause(); } });
 
   if(AUTO){ document.body.classList.add('auto'); play(); } else reset();
 })();
