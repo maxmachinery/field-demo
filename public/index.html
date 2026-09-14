@@ -8,7 +8,7 @@
   :root{
     --chrome:#2E3942; --chrome-2:#3B4954; --ink:#1B2229; --ink-2:#5B6770; --line:#DCE1E5;
     --page:#F3F4F5; --white:#fff; --ok:#2E8B57; --warn:#C8811A; --bad:#B23A3A;
-    --mp:#1F5F8B; --mp-soft:#E7F0F7; --bubble-in:#ECEEF1; --bubble-out:#2E8B57; --thread:#F2F4F6;
+    --mp:#1F5F8B; --mp-soft:#E7F0F7; --bubble-in:#E9E9EB; --thread:#F2F4F6;
     --accent:#F2B705;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -25,6 +25,7 @@
   .topbar{height:52px;background:var(--chrome);color:#fff;display:flex;align-items:center;padding:0 12px;gap:10px;font-weight:600;font-size:16px}
   .topbar .back{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:20px}
   .topbar .spacer{flex:1}
+  #wsTitle{font-size:13.5px}
   .topbar .tick{width:38px;height:38px;border-radius:8px;display:grid;place-items:center;font-size:20px;background:var(--chrome-2)}
   .content{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
   .daybar{background:#E6E9EC;color:var(--ink-2);font-size:12px;font-weight:600;padding:6px 14px}
@@ -67,28 +68,29 @@
   .tog button.on-yes{background:var(--ok);color:#fff;border-color:var(--ok)}
   .tog button.on-no{background:var(--bad);color:#fff;border-color:var(--bad)}
   /* notification banner */
-  .banner{position:absolute;top:8px;left:10px;right:10px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-radius:16px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 12px 30px rgba(0,0,0,.28);transform:translateY(-130%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:20;text-align:left;width:calc(100% - 20px)}
+  .banner{position:absolute;top:48px;left:10px;right:10px;background:rgba(255,255,255,.93);backdrop-filter:blur(18px) saturate(1.6);border-radius:20px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 6px 20px rgba(0,0,0,.18);transform:translateY(calc(-100% - 60px));transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:20;text-align:left;width:calc(100% - 20px)}
   .banner.on{transform:none}
-  .banner .ic{width:36px;height:36px;border-radius:9px;background:var(--ok);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;letter-spacing:.02em;flex:none}
-  .banner .tt{font-size:13px;font-weight:700;display:flex;justify-content:space-between}
-  .banner .tt small{font-weight:500;color:var(--ink-2)}
-  .banner .sn{font-size:12.5px;font-weight:600;color:var(--ink-2);margin-top:1px}
+  .banner .ic{width:38px;height:38px;border-radius:10px;background:var(--mp);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;letter-spacing:.03em;flex:none}
+  .banner .tt{display:flex;gap:8px;justify-content:space-between;font-size:13.5px;font-weight:700;line-height:1.3}
+  .banner .tt small{flex:none;align-self:flex-start;font-weight:400;font-size:12px;color:#8E8E93}
   .banner .bd{font-size:13px;line-height:1.35;color:var(--ink);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   /* thread */
-  .thread .topbar{background:var(--chrome)}
-  .thread .topbar .av{width:34px;height:34px;border-radius:50%;background:#8A949D;flex:none}
-  .thread .topbar .nm{line-height:1.1}
-  .thread .content{background:var(--thread);padding:12px 12px 8px;display:flex;flex-direction:column;gap:8px}
-  .msg{max-width:86%;padding:9px 11px;border-radius:12px;font-size:14px;line-height:1.4;background:var(--bubble-in);box-shadow:0 1px 1px rgba(0,0,0,.08);white-space:pre-wrap;position:relative}
-  .msg.in{align-self:flex-start;border-top-left-radius:4px}
-  .msg .ts{display:block;font-size:10px;color:#7d8790;text-align:right;margin-top:4px}
-  .msg ol{padding-left:18px;margin:6px 0 2px}
-  .msg li{margin:3px 0}
-  .msg .good{color:var(--ok);font-weight:700}
-  .day{align-self:center;font-size:11px;background:#E3E7EB;color:#5B6770;padding:3px 9px;border-radius:8px;margin:2px 0}
-  .composer{display:flex;gap:8px;padding:8px 12px 14px;background:#EDF0F3;border-top:1px solid #DFE4E9}
-  .composer div{flex:1;height:38px;border-radius:19px;background:#fff;border:1px solid #DFE4E9;color:#A3A9AF;font-size:14px;display:flex;align-items:center;padding:0 14px}
-  .composer span{width:38px;height:38px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:16px}
+  .thread .statusbar{background:#F7F7F8;color:var(--ink)}
+  .thread .topbar{height:auto;padding:4px 12px 9px;justify-content:center;position:relative;
+    background:rgba(247,247,248,.94);backdrop-filter:blur(14px);color:var(--ink);border-bottom:1px solid #D6D6DA}
+  .thread .topbar .back{position:absolute;left:5px;top:50%;transform:translateY(-50%);color:var(--mp);font-size:26px}
+  .thread .who{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .thread .av{width:50px;height:50px;border-radius:50%;background:#C4C4C9;color:#fff;display:grid;place-items:center;font-size:18px;font-weight:600;letter-spacing:.02em}
+  .thread .nm{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:400;line-height:1.2}
+  .thread .nm i{font-style:normal;color:#8E8E93}
+  .thread .content{background:#fff;padding:10px 12px 12px;display:flex;flex-direction:column}
+  .stamp{align-self:center;margin:10px 0 5px;font-size:11px;color:#8E8E93}
+  .stamp b{font-weight:600;color:#6E6E73}
+  .msg{max-width:80%;padding:9px 13px;border-radius:18px;font-size:16px;line-height:1.35;background:var(--bubble-in);color:#000;white-space:pre-wrap}
+  .msg.in{align-self:flex-start;border-bottom-left-radius:5px}
+  .composer{display:flex;gap:8px;padding:8px 12px 14px;background:#F7F7F8;border-top:1px solid #D6D6DA}
+  .composer div{flex:1;height:38px;border-radius:19px;background:#fff;border:1px solid #D6D6DA;color:#8E8E93;font-size:15px;display:flex;align-items:center;padding:0 14px}
+  .composer span{width:38px;height:38px;border-radius:50%;background:#C4C4C9;color:#fff;display:grid;place-items:center;font-size:16px}
   /* fingertip */
   .tip{position:absolute;left:0;top:0;z-index:50;pointer-events:none;width:44px;height:44px;border-radius:50%;
     background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.8);
@@ -97,13 +99,15 @@
   .tip.on{opacity:1}
   .tip.pulse{animation:ping .3s ease}
   .auto .screen.on{animation:cut .25s ease both}
-  .q.fadein input,.q.fadein textarea,.q.fadein .photo,.q.fadein .tog{animation:cut .45s ease both}
+  .rise{animation:rise .35s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
   @keyframes cut{from{opacity:0}}
   @keyframes ping{50%{transform:scale(.82);background:rgba(255,255,255,.45)}}
   @media (max-width:430px){
     .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
     .statusbar{display:none}
+    .banner{top:10px}
   }
   @media (prefers-reduced-motion:reduce){
     .banner,.tip{transition:none}
@@ -120,10 +124,9 @@
 
   <!-- Notification banner -->
   <button class="banner" id="banner" aria-live="polite">
-    <div class="ic">SMS</div>
+    <div class="ic">MP</div>
     <div style="flex:1;min-width:0">
-      <div class="tt"><span>Messages</span><small id="bannerTime">now</small></div>
-      <div class="sn">Machinery Pilot</div>
+      <div class="tt"><span id="bannerTitle"></span><small id="bannerTime">now</small></div>
       <div class="bd" id="bannerBody"></div>
     </div>
   </button>
@@ -142,16 +145,15 @@
     <div class="content">
       <div class="machine">
         <b>Develon DX300LC-7K</b>
-        <span>Serial DHKCEBBRTP0001417 · 1,240 h · Registered 14 Nov 2025</span>
-        <span>Ashcroft Groundworks Ltd — Kettering pit, NN15 5AB</span>
+        <span>Serial DHKCEBBRTP0001417 · 1,240 h · Registered 14 Nov 2025 · Ashcroft Groundworks Ltd, NN15 5AB</span>
       </div>
       <div class="h">Reported fault</div>
       <div class="card fault">Customer reports slow slew and boom, hydraulic warning on dash. Machine stopped, 7 weeks since delivery.</div>
       <div class="h">Tasks</div>
       <div class="card">
         <button class="row"><span>Risk assessment</span><span class="prog ok">Signed 13:52</span></button>
-        <button class="row" id="wsRow" data-go="worksheet"><span>Worksheet — Hydraulic breakdown</span><span><span class="prog" id="wsProg">0 of 7</span><span class="chev">›</span></span></button>
-        <button class="row"><span>Parts used</span><span><span class="prog" id="partsProg">—</span><span class="chev">›</span></span></button>
+        <button class="row" id="wsRow" data-go="worksheet"><span>Worksheet, hydraulic breakdown</span><span><span class="prog" id="wsProg">0 of 7</span><span class="chev">›</span></span></button>
+        <button class="row"><span>Parts used</span><span><span class="prog" id="partsProg">None</span><span class="chev">›</span></span></button>
         <button class="row"><span>Photos</span><span><span class="prog" id="photoProg">0</span><span class="chev">›</span></span></button>
       </div>
       <button class="primary" id="startBtn">Start job</button>
@@ -162,7 +164,7 @@
   <!-- WORKSHEET -->
   <section class="screen" id="s-ws">
     <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
-    <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span>Worksheet 1/1 — Hydraulic breakdown</span></div>
+    <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span id="wsTitle"></span></div>
     <div class="content" id="wsForm">
       <div class="q"><label>Hour meter reading<i>*</i></label><input id="q-hours" inputmode="numeric" placeholder="e.g. 1240"></div>
       <div class="q"><label>Hour meter photo<i>*</i></label><button class="photo" id="q-hourphoto">📷 Take photo</button></div>
@@ -170,7 +172,7 @@
       <div class="q"><label>Complaint<i>*</i></label><textarea id="q-complaint" placeholder="What the customer reported / what you found"></textarea></div>
       <div class="q" id="wrap-cause"><label>Cause<i>*</i></label><textarea id="q-cause" placeholder="Why it failed"></textarea><div class="hint" id="hint-cause" hidden></div></div>
       <div class="q"><label>Correction<i>*</i></label><textarea id="q-correction" placeholder="What you did"></textarea></div>
-      <div class="q"><label>Machine left operational<i>*</i></label><div class="tog"><button id="op-yes">Yes</button><button id="op-no">No</button></div></div>
+      <div class="q"><label>Machine left operational<i>*</i></label><div class="tog" id="opTog"><button id="op-yes">Yes</button><button id="op-no">No</button></div></div>
       <button class="primary" id="saveBtn" data-go="job">Save</button>
     </div>
   </section>
@@ -178,9 +180,15 @@
   <!-- THREAD -->
   <section class="screen thread" id="s-thread">
     <div class="statusbar"><span>13:58</span><span>▲ ▲ 74%</span></div>
-    <div class="topbar"><button class="back" id="threadBack" aria-label="Back">‹</button><div class="av" aria-hidden="true"></div><div class="nm">Machinery Pilot</div></div>
-    <div class="content" id="threadBody"><div class="day">Today</div></div>
-    <div class="composer"><div>Message</div><span>➤</span></div>
+    <div class="topbar">
+      <button class="back" id="threadBack" aria-label="Back">‹</button>
+      <div class="who">
+        <div class="av" aria-hidden="true">MP</div>
+        <div class="nm">Machinery Pilot - AI Job Card Support <i>›</i></div>
+      </div>
+    </div>
+    <div class="content" id="threadBody"></div>
+    <div class="composer"><div>Text Message</div><span>➤</span></div>
   </section>
 
 </div>
@@ -200,9 +208,14 @@
   let timers=[], ticks=[];
   function at(ms,fn){ timers.push(setTimeout(fn,ms)); }
 
+  const JOB='48213', MAKE='Develon', MODEL='DX300LC-7K';
+  const REF=`Job ${JOB} | ${MAKE} ${MODEL}`;
+  const H={brief:`Warranty Briefing – ${REF}`, feedback:`Warranty Feedback – ${REF}`, worksheet:`Worksheet – ${REF}`};
+  $('wsTitle').textContent=H.worksheet;
+
   const JOBS = [
-    {t:'08:30', who:'Brackley Aggregates', type:'Service — 500 h', where:'Doosan DX140LC · Brackley NN13', dist:'18 mi', done:true},
-    {t:'13:45', who:'Ashcroft Groundworks', type:'Breakdown — hydraulic', where:'Develon DX300LC-7K · Kettering NN15', dist:'0 mi', main:true, pill:'Warranty-eligible'},
+    {t:'08:30', who:'Brackley Aggregates', type:'Service, 500 h', where:'Doosan DX140LC · Brackley NN13', dist:'18 mi', done:true},
+    {t:'13:45', who:'Ashcroft Groundworks', type:'Breakdown, hydraulic', where:'Develon DX300LC-7K · Kettering NN15', dist:'0 mi', main:true, pill:'Warranty-eligible'},
     {t:'16:00', who:'Weldon Plant Hire', type:'PDI', where:'Develon DX62R-7 · Corby NN17', dist:'11 mi'},
   ];
 
@@ -237,7 +250,7 @@
   }
   function syncWs(){
     $('q-hours').value=state.hours; $('q-complaint').value=state.complaint; $('q-cause').value=state.cause; $('q-correction').value=state.correction;
-    setPhoto($('q-hourphoto'),state.hourPhoto,'Hour meter — IMG_4471'); setPhoto($('q-partphoto'),state.partPhoto,'Main pump in situ — IMG_4472');
+    setPhoto($('q-hourphoto'),state.hourPhoto,'Hour meter, IMG_4471'); setPhoto($('q-partphoto'),state.partPhoto,'Main pump in situ, IMG_4472');
     $('op-yes').className=state.op==='yes'?'on-yes':''; $('op-no').className=state.op==='no'?'on-no':'';
     const flag = state.completed && !state.fixed;
     $('wrap-cause').classList.toggle('flag',flag);
@@ -258,10 +271,10 @@
     const n=wsCount();
     $('wsProg').textContent=n+' of 7'; $('wsProg').classList.toggle('ok',n===7);
     $('photoProg').textContent=(state.hourPhoto?1:0)+(state.partPhoto?1:0);
-    $('partsProg').textContent=state.correction?'1 line':'—';
+    $('partsProg').textContent=state.correction?'1 line':'None';
     $('startBtn').hidden=state.started; $('completeBtn').hidden=!state.started||state.completed;
     $('completeBtn').disabled=n<7;
-    if(state.completed){ $('completeBtn').hidden=false; $('completeBtn').textContent=state.fixed?'Completed — Develon check clear':'Completed '+state.doneAt; $('completeBtn').disabled=true; $('completeBtn').style.opacity='1'; $('completeBtn').style.background=state.fixed?'var(--ok)':'var(--chrome-2)'; }
+    if(state.completed){ $('completeBtn').hidden=false; $('completeBtn').textContent='Completed '+state.doneAt; $('completeBtn').disabled=true; $('completeBtn').style.opacity='1'; $('completeBtn').style.background='var(--chrome-2)'; }
     else { $('completeBtn').textContent='Complete job'; $('completeBtn').style.background=''; }
   }
 
@@ -277,12 +290,23 @@
   }
 
   // ---- messages
-  const START_MSG = `<b>Job 48213 · Develon DX300LC-7K</b>\nDevelon will ask for these — grab them before you leave:<ol><li>Photo of the hour meter</li><li>Photo of the pump in situ, before removal</li><li>Case-drain flow reading — that's what condemns it</li></ol>Reply here as you go, or ignore me — I'll check the card when you complete it.`;
-  const GAP_MSG = `<b>Job 48213</b> — thanks, that's nearly there. Before the office sends it to Develon, two things they'll bounce it for:<ol><li><b>Why the pump failed.</b> "Worn" reads as wear, not a defect — wear isn't covered. What did you find on strip? Scoring, contamination, seal failure?</li><li><b>What you measured.</b> There's no case-drain figure on the card. Develon needs the number that condemned the pump.</li></ol>Reply here and I'll put it on the card, or add it yourself.`;
+  const START_MSG = `<b>${H.brief}</b>
+Develon's warranty team requires:
+1. Photo of the hour meter
+2. Photo of the failed part in situ, before removal
+3. Case-drain flow reading on the main pump
+4. Photo of the fault code on the dash
+5. Return filter and oil condition, with photo`;
+  const GAP_MSG = `<b>${H.feedback}</b>
+Thanks for completing the job card. Add two more bits to ensure the claim does not get rejected.
+1. Why the pump failed. "Worn" reads as wear, and wear is not covered. What did you find on strip: scoring, contamination, seal failure?
+2. What you measured. There is no case-drain figure on the card. Develon needs the number that condemned the pump.
+Thanks for your help!`;
 
   function addMsg(html,dir){
-    const m=document.createElement('div'); m.className='msg '+dir; m.innerHTML=html+`<span class="ts">${dir==='in'?stamp():stamp()}</span>`;
-    $('threadBody').appendChild(m); $('threadBody').scrollTop=1e6;
+    const t=document.createElement('div'); t.className='stamp'; t.innerHTML='<b>Today</b> '+stamp();
+    const m=document.createElement('div'); m.className='msg '+dir; m.innerHTML=html;
+    $('threadBody').append(t,m); $('threadBody').scrollTop=1e6;
   }
   function stamp(){ const d=new Date(); return d.toTimeString().slice(0,5); }
   function msgDelay(kind){
@@ -291,8 +315,8 @@
     return Math.max(700,27000-elapsed());                        // banner at 27.0 s
   }
 
-  function notify(body,onOpen){
-    $('bannerBody').innerHTML=body; $('bannerTime').textContent='now';
+  function notify(title,body,onOpen){
+    $('bannerTitle').textContent=title; $('bannerBody').textContent=body; $('bannerTime').textContent='now';
     const b=$('banner'); b.classList.add('on'); state.banner=onOpen;
     timers.push(setTimeout(()=>b.classList.remove('on'),9000));
   }
@@ -304,7 +328,7 @@
     if(!AUTO) at(600,fillWorksheet);   // manual: the card arrives filled, so Complete is always reachable
     timers.push(setTimeout(()=>{
       addMsg(START_MSG,'in');
-      notify('Develon will ask for 3 things on this job — hour meter photo, pump in situ, case-drain flow.',()=>{state.threadFrom='job';go('thread');});
+      notify(H.brief,`Develon's warranty team requires 5 items on this job.`,()=>{state.threadFrom='job';go('thread');});
     },msgDelay('start')));
   });
 
@@ -316,17 +340,17 @@
     state.completed=true; state.doneAt=stamp(); go('jobs');
     timers.push(setTimeout(()=>{
       addMsg(GAP_MSG,'in');
-      notify('2 things Develon will bounce this for — why the pump failed, and the case-drain figure. 1 min to fix.',()=>{state.threadFrom='jobs';go('thread');});
+      notify(H.feedback,'Two more bits to add before the claim goes off.',()=>{state.threadFrom='jobs';go('thread');});
     },msgDelay('complete')));
   }
 
   function reset(){
     timers.forEach(clearTimeout); ticks.forEach(clearInterval); timers=[]; ticks=[];
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
-    $('threadBody').innerHTML='<div class="day">Today</div>'; $('banner').classList.remove('on');
+    $('threadBody').innerHTML=''; $('banner').classList.remove('on');
     $('tip').classList.remove('on');
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
-    document.querySelectorAll('.q').forEach(q=>q.classList.remove('fadein'));
+    document.querySelectorAll('.rise').forEach(e=>e.classList.remove('rise'));
     syncWs(); go('jobs');
   }
 
@@ -368,13 +392,19 @@
     },CPS);
     ticks.push(id);
   }
-  function fadeFill(){              // the card as the engineer would have filled it, bar the Cause
-    Object.assign(state,{hours:FILL.hours,hourPhoto:true,partPhoto:true,op:'yes',
-      complaint:FILL.complaint,correction:FILL.correction});
-    syncWs(); syncJob();
-    document.querySelectorAll('#wsForm .q:not(#wrap-cause)').forEach(q=>{
-      q.classList.remove('fadein'); void q.offsetWidth; q.classList.add('fadein');
-    });
+  function fadeFill(){              // top to bottom, 350 ms apart, Cause left for the typewriter
+    const steps=[
+      ['q-hours',      ()=>state.hours=FILL.hours],
+      ['q-hourphoto',  ()=>state.hourPhoto=true],
+      ['q-partphoto',  ()=>state.partPhoto=true],
+      ['q-complaint',  ()=>state.complaint=FILL.complaint],
+      ['q-correction', ()=>state.correction=FILL.correction],
+      ['opTog',        ()=>state.op='yes']
+    ];
+    steps.forEach(([id,set],i)=>at(i*350,()=>{
+      set(); syncWs(); syncJob();
+      const el=$(id); el.classList.remove('rise'); void el.offsetWidth; el.classList.add('rise');
+    }));
   }
 
   function play(){
