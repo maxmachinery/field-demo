@@ -5,10 +5,10 @@
   python3 tools/record.py --skip-og  # videos only
 
 Outputs (video/ is gitignored):
-  video/raw/desktop.webm      1280x720, one full 64 s loop
-  video/raw/mobile.webm       390x844,  one full 64 s loop
-  video/shots/t{2,16,26,40,53,60}.png frames
-  public/og.png               1200x630 share image, the gap text
+  video/raw/desktop.webm      1280x720, one full 66 s loop
+  video/raw/mobile.webm       390x844,  one full 66 s loop
+  video/shots/t{2,15,25,38,46,55,62}.png frames
+  public/og.png               1200x630 share image, the corrected Cause
 Then run tools/make-video.sh to produce the mp4s and the gif.
 """
 import argparse
@@ -25,9 +25,9 @@ from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 VIDEO = ROOT / "video"
-LOOP_MS = 64_000          # one full loop of the timeline
-SHOTS_MS = (2_000, 16_000, 26_000, 40_000, 53_000, 60_000)
-OG_MS = 40_000            # mid-dwell on the gap text
+LOOP_MS = 66_000          # one full loop of the timeline
+SHOTS_MS = (2_000, 15_000, 25_000, 38_000, 46_000, 55_000, 62_000)
+OG_MS = 46_000            # the corrected Cause
 
 
 def serve(directory):

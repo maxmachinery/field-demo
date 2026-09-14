@@ -17,6 +17,7 @@
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .stage{position:relative;overflow:hidden;transition:opacity .5s;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px}
   .stage.fade{opacity:0}
+  .auto .phone{height:min(812px,calc(100dvh - 104px))}
   .phone{position:relative;width:390px;height:min(812px,calc(100dvh - 36px));background:var(--page);border-radius:38px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 10px #0B0D10,0 0 0 12px #2A2F35}
   .screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
   .screen.on{display:flex}
@@ -104,6 +105,8 @@
   .composer div{flex:1;height:38px;border-radius:19px;background:#fff;border:1px solid #D6D6DA;color:#8E8E93;font-size:15px;display:flex;align-items:center;padding:0 14px}
   .composer span{width:38px;height:38px;border-radius:50%;background:#C4C4C9;color:#fff;display:grid;place-items:center;font-size:16px}
   .q.ok{box-shadow:inset 4px 0 0 var(--ok);background:#F5FBF7}
+  #q-cause.grown{min-height:0;font-size:16px;line-height:1.4}
+  .okline{margin-top:7px;font-size:13px;font-weight:600;color:var(--ok)}
   .fade3{animation:cut .3s ease}
   /* app label, pause pill */
   .paused{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;pointer-events:none;
@@ -113,26 +116,35 @@
   /* title cards (own names: .card/.row/.h belong to the job screens) */
   .title-card{background:#15191D}
   .title-card .tc{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:26px 24px;text-align:center}
-  .title-card p{font-size:20px;line-height:1.45;color:#fff}
+  .title-card p{font-size:18px;line-height:1.45;color:#fff}
+  .title-card p.lead{font-size:20px;font-weight:600}
   .title-card .brand{font-size:15px;font-weight:600;color:#4A8FD1;margin-bottom:2px}
   /* end card */
   .end-card{background:#15191D}
   .end-card .ec{flex:1;display:flex;flex-direction:column;padding:26px 22px 26px}
-  .end-card .hl{font-size:19px;font-weight:600;line-height:1.35;color:#fff;text-align:center}
+  .end-card .hl{font-size:20px;font-weight:600;line-height:1.35;color:#fff;text-align:center}
+  .end-card .lines{flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center}
+  .end-card .lines p{font-size:16px;line-height:1.6;color:#fff}
+  .end-card .cta{display:flex;align-items:center;justify-content:center;height:48px;border-radius:10px;
+    background:#4A8FD1;color:#fff;font-size:16px;font-weight:600;text-decoration:none}
+  .end-card .cta:hover{background:#5C9BD8}
   .end-card .proof{margin-top:16px;font-size:14px;line-height:1.4;color:#8E99A3;text-align:center}
-  .end-card .replay{padding:9px 22px;border:1px solid #4A8FD1;border-radius:22px;background:transparent;
-    color:#4A8FD1;font-size:15px;font-weight:500}
-  .end-card .replay:hover{background:rgba(74,143,209,.12)}
-  .end-card .steps{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;list-style:none;counter-reset:s}
-  .end-card .steps li{position:relative;padding-left:27px;font-size:17px;line-height:1.5;color:#fff}
-  .end-card .steps li::before{counter-increment:s;content:counter(s) ".";position:absolute;left:0;color:#4A8FD1;font-weight:600}
+  .end-card .replay{margin-top:14px;font-size:14px;color:#8E99A3;text-decoration:underline;background:none}
+  .end-card .replay:hover{color:#fff}
   .end-card .sig{padding-top:22px;text-align:center}
   .end-card .sig span{display:block;margin-top:12px;font-size:13px;color:#8E99A3}
-  /* desktop progress strip */
-  .strip{display:none;gap:9px;align-items:center;font-size:12.5px}
-  .strip b{font-weight:500;color:#66727C;transition:color .3s}
-  .strip b.on{color:#fff}
-  .strip i{font-style:normal;color:#3A434B}
+  /* stage tabs */
+  .tabs{display:none;width:390px;max-width:100%;align-items:stretch}
+  .auto .tabs{display:flex}
+  .tabs b{flex:1;padding:7px 4px 8px;text-align:center;font-size:11px;font-weight:500;line-height:1.25;
+    color:#66727C;border-bottom:2px solid transparent;transition:color .3s,border-color .3s}
+  .tabs b.on{color:#fff;border-bottom-color:#fff}
+  /* loop progress + pause */
+  .pbar{position:absolute;top:0;left:0;height:2px;width:0;background:#4A8FD1;z-index:70;pointer-events:none}
+  .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
+    background:rgba(0,0,0,.45);color:#fff;font-size:11px;line-height:1;align-items:center;justify-content:center}
+  .auto .pbtn{display:flex}
+  .pbtn:hover{background:rgba(0,0,0,.62)}
   /* fingertip */
   .tip{position:absolute;left:0;top:0;z-index:50;pointer-events:none;width:44px;height:44px;border-radius:50%;
     background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.8);
@@ -147,15 +159,13 @@
   @keyframes cut{from{opacity:0}}
   @keyframes ping{50%{transform:scale(.82);background:rgba(255,255,255,.45)}}
   @media (max-width:430px){
-    .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
+    .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden;justify-content:flex-start}
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
+    .auto .phone{height:calc(100dvh - 44px)}
+    .auto .tabs{position:fixed;left:0;right:0;bottom:0;width:100%;height:44px;background:#0F1317;border-top:1px solid #232A31}
     .statusbar{display:none}
     .statusbar.app{display:flex;height:34px}
     .banner{top:10px}
-  }
-  @media (min-height:848px) and (min-width:431px){
-    .auto .strip{display:flex}
-    .auto .phone{height:min(812px,calc(100dvh - 80px))}
   }
   @media (prefers-reduced-motion:reduce){
     .banner,.tip{transition:none}
@@ -170,26 +180,28 @@
 
   <div class="tip" id="tip" aria-hidden="true"></div>
   <div class="paused" id="pausedPill">Paused</div>
+  <div class="pbar" id="pbar" aria-hidden="true"></div>
+  <button class="pbtn" id="pauseBtn" aria-label="Pause">❚❚</button>
 
   <!-- TITLE CARDS -->
   <section class="screen title-card" id="s-c1">
     <div class="tc">
-      <p>Machinery Pilot checks dealers’ job cards and texts engineers what’s missing while they’re still at the machine.</p>
+      <p class="lead">Machinery Pilot works with your existing job system.</p>
+      <p>It checks warranty job cards and texts engineers what evidence is missing before they leave the machine.</p>
     </div>
   </section>
 
   <!-- END CARD -->
   <section class="screen end-card" id="s-end">
     <div class="ec">
-      <p class="hl">Claims that get paid first time. Keep your existing job app.</p>
-      <ol class="steps">
-        <li>Keep Ibcos, JobWatch or whatever you have.</li>
-        <li>Get the OEM’s evidence list by text when the job opens.</li>
-        <li>Fill the job card as usual.</li>
-        <li>Get told exactly what’s missing while you’re still at the machine.</li>
-        <li>Evidence complete before the claim leaves the yard.</li>
-      </ol>
+      <p class="hl">Warranty evidence complete before the engineer leaves.</p>
+      <div class="lines">
+        <p>Your existing job system.</p>
+        <p>Machinery Pilot checks.</p>
+        <p>Engineers get clear prompts by text.</p>
+      </div>
       <p class="proof" id="proofPoint" hidden></p>
+      <a class="cta" href="https://calendly.com/max-machinerypilot/25-minutes-with-max" target="_blank" rel="noopener">Discuss a pilot</a>
       <div class="sig"><button class="replay" id="replayBtn">Replay</button><span>machinerypilot.com</span></div>
     </div>
   </section>
@@ -243,7 +255,7 @@
       <div class="q"><label>Hour meter photo<i>*</i></label><button class="photo" id="q-hourphoto">📷 Take photo</button></div>
       <div class="q"><label>Failed part in situ, before removal<i>*</i></label><button class="photo" id="q-partphoto">📷 Take photo</button></div>
       <div class="q"><label>Complaint<i>*</i></label><textarea id="q-complaint" placeholder="What the customer reported / what you found"></textarea></div>
-      <div class="q" id="wrap-cause"><label>Cause<i>*</i></label><textarea id="q-cause" placeholder="Why it failed"></textarea><div class="hint" id="hint-cause" hidden></div></div>
+      <div class="q" id="wrap-cause"><label>Cause<i>*</i></label><textarea id="q-cause" placeholder="Why it failed"></textarea><div class="hint" id="hint-cause" hidden></div><div class="okline" id="okLine" hidden>Diagnosis and test result added.</div></div>
       <div class="q"><label>Correction<i>*</i></label><textarea id="q-correction" placeholder="What you did"></textarea></div>
       <div class="q"><label>Machine left operational<i>*</i></label><div class="tog" id="opTog"><button id="op-yes">Yes</button><button id="op-no">No</button></div></div>
       <button class="primary" id="saveBtn" data-go="job">Save</button>
@@ -266,8 +278,8 @@
 
 </div>
 
-<div class="strip" id="strip" aria-hidden="true">
-  <b>Same app</b><i>·</i><b>OEM list by text</b><i>·</i><b>Fill the card</b><i>·</i><b>What's missing</b><i>·</i><b>Fix it there</b>
+<div class="tabs" id="tabs" aria-hidden="true">
+  <b>Your job app</b><b>Requirements by text</b><b>Fill the card</b><b>Feedback by text</b><b>Evidence complete</b>
 </div>
 </div>
 
@@ -281,6 +293,7 @@
   const elapsed = () => Date.now()-t0;
   const state = {started:false, completed:false, fixed:false, threadFrom:'job',
     hours:'', hourPhoto:false, partPhoto:false, complaint:'', cause:'', correction:'', op:null, banner:null};
+  const LOOP=66000;
   let timers=[], paused=false, pausedAt=0;
   function arm(e,ms){ e.id=setTimeout(()=>{ const i=timers.indexOf(e); if(i>=0) timers.splice(i,1); e.fn(); },ms); }
   function at(ms,fn){ const e={due:elapsed()+ms,fn,id:null}; arm(e,ms); timers.push(e); }
@@ -291,6 +304,8 @@
       timers.forEach(e=>arm(e,Math.max(0,e.due-elapsed())));
     } else { paused=true; pausedAt=Date.now(); timers.forEach(e=>clearTimeout(e.id));
       $('pausedPill').classList.add('on'); }
+    $('pauseBtn').textContent = paused?'▶':'❚❚';
+    $('pauseBtn').setAttribute('aria-label', paused?'Play':'Pause');
   }
 
   const JOB='48213', MAKE='Develon', MODEL='DX300LC-7K';
@@ -300,7 +315,7 @@
   const CLOCK={open:'13:58', started:'13:59', done:'14:31', resolved:'14:34'};
   const CLKS=[...document.querySelectorAll('.clk')];
   function setClock(t){ CLKS.forEach(e=>e.textContent=t); }
-  const PROOF_POINT='';            // one line of proof under the steps; empty hides it
+  const PROOF_POINT='';            // one line of proof above the button; empty hides it
 
   const JOBS = [
     {t:'08:30', who:'Brackley Aggregates', type:'Service, 500 h', where:'Doosan DX140LC · Brackley NN13', dist:'18 mi', done:true},
@@ -386,11 +401,11 @@ Develon’s warranty team requires:
 2. Photo of the failed part in situ, before removal
 3. Case-drain flow reading on the main pump`;
   const GAP_MSG = `<b>${H.feedback}</b>
-Thanks for completing the card. 2 of 3 received: hour meter, pump in situ.
-Two things to add:
-1. <b>The cause says “Main pump worn.”</b> Develon needs what you found: scoring, contamination, seal failure?
-2. <b>The case-drain figure</b> that condemned the pump.
-Thanks for your help!`;
+✓ Hour meter and pump photos received.
+Two gaps to resolve:
+<b>Failure detail:</b> expand "Main pump worn." with what you observed.
+<b>Test result:</b> add the case-drain reading and test conditions.
+Update the job card before leaving.`;
   const DONE_MSG = `Received. Evidence complete for Develon. Ready for the office.`;
 
   function addMsg(html,dir,when,cls){
@@ -402,7 +417,7 @@ Thanks for your help!`;
   function msgDelay(kind){
     if(!AUTO) return kind==='start'?1500:3500;
     if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
-    return Math.max(700,31500-elapsed());                        // banner at 31.5 s
+    return Math.max(700,30000-elapsed());                        // banner at 30.0 s
   }
 
   function notify(title,body,onOpen){
@@ -418,7 +433,7 @@ Thanks for your help!`;
     if(!AUTO) at(600,fillWorksheet);   // manual: the card arrives filled, so Complete is always reachable
     timers.push(setTimeout(()=>{
       addMsg(START_MSG,'in',CLOCK.started);
-      notify(H.brief,`Develon's warranty team requires 5 items on this job.`,()=>{state.threadFrom='job';go('thread');});
+      notify(H.brief,`Develon's warranty team requires 3 items on this job.`,()=>{state.threadFrom='job';go('thread');});
     },msgDelay('start')));
   });
 
@@ -441,7 +456,8 @@ Thanks for your help!`;
     $('tip').classList.remove('on'); setClock(CLOCK.open);
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.rise,.fade3').forEach(e=>e.classList.remove('rise','fade3'));
-    $('wrap-cause').classList.remove('ok'); STRIP.forEach(b=>b.classList.remove('on'));
+    $('wrap-cause').classList.remove('ok'); TABS.forEach(b=>b.classList.remove('on'));
+    $('okLine').hidden=true; $('q-cause').classList.remove('grown'); $('q-cause').style.height='';
     syncWs(); go('jobs');
   }
 
@@ -463,9 +479,9 @@ Thanks for your help!`;
     }
     tip.style.transform=`translate(${x}px,${y}px)`;
   }
-  function tapAt(t,get){            // element is clicked at t ms into the loop
+  function tapAt(t,get,noReveal){   // element is clicked at t ms into the loop
     const tip=$('tip');
-    at(Math.max(0,t-900),()=>{ const el=get(); if(el) reveal(el); });
+    if(!noReveal) at(Math.max(0,t-900),()=>{ const el=get(); if(el) reveal(el); });
     if(!RM){
       at(Math.max(0,t-450),()=>{ const el=get(); if(el) moveTip(el); });
       at(Math.max(0,t-120),()=>tip.classList.add('pulse'));
@@ -474,16 +490,25 @@ Thanks for your help!`;
     at(t+350,()=>tip.classList.remove('on'));
   }
   const CAUSE_ADD = ' Swash plate scored, metal in return filter. Case drain 1.1 L/min at 2,000 rpm, spec 0.2.';
-  const STRIP=[...document.querySelectorAll('.strip b')];
-  function strip(i){ STRIP.forEach((b,k)=>b.classList.toggle('on', i<0 || k===i)); }
+  const TABS=[...document.querySelectorAll('.tabs b')];
+  function tab(i){ TABS.forEach((b,k)=>b.classList.toggle('on', i<0 || k===i)); }
 
   function resolved(){              // the evidence is on the card, so the last text confirms it
     setClock(CLOCK.resolved); addMsg(DONE_MSG,'in',CLOCK.resolved);
     notify(H.feedback,'Evidence complete. Ready for the office.',()=>{state.threadFrom='jobs';go('thread');});
   }
 
+  function growCause(){             // the field opens up so the whole cause is readable
+    const el=$('q-cause'); el.classList.add('grown');
+    el.style.height='auto'; el.style.height=el.scrollHeight+'px';
+  }
+  function centreCause(){           // cut the card so the Cause row sits mid screen
+    const c=$('wsForm'), q=$('wrap-cause');
+    c.scrollTop += q.getBoundingClientRect().top - c.getBoundingClientRect().top
+                 - (c.clientHeight - q.getBoundingClientRect().height)/2;
+  }
   function appendCause(){           // the engineer's answer goes on the card
-    state.fixed=true; state.cause=state.cause+CAUSE_ADD; syncWs(); syncJob();
+    state.fixed=true; state.cause=state.cause+CAUSE_ADD; syncWs(); syncJob(); growCause();
     const el=$('q-cause'); el.classList.remove('fade3'); void el.offsetWidth; el.classList.add('fade3');
     $('wrap-cause').classList.add('ok');
   }
@@ -506,39 +531,43 @@ Thanks for your help!`;
 
   function play(){
     reset(); t0=Date.now();
-    go('c1');                                      //  0.0  card 1, 4.0
-    at(4000,()=>{ go('job'); strip(0); });         //  4.0  job detail, 4.0
+    go('c1');                                      //  0.0  opening card, 5.0
+    at(5000,()=>{ go('job'); tab(0); });           //  5.0  job detail, 3.0
     tapAt(8000,()=>$('startBtn'));                 //  8.0  taps Start, 2.0
-    at(10000,()=>strip(1));
+    at(10000,()=>tab(1));
     tapAt(12500,()=>$('banner'));                  // 10.0  banner 1, 2.5 -> tapped, text 1, 7.0
-    at(19500,()=>go('job'));                       // 19.5  cut back to the job, 2.0
-    tapAt(21500,()=>$('wsRow')); at(21500,()=>strip(2));   // 21.5  taps the worksheet row, 1.0
-    at(23500,fadeFill);                            // 23.5  seven fields rise, then still, 5.0
-    at(26300,()=>reveal($('saveBtn')));
-    tapAt(28500,()=>$('saveBtn'));                 // 28.5  taps Save...
-    at(28900,doComplete);                          //       ...which completes it, 3.0
-    at(31500,()=>strip(3));
-    tapAt(35000,()=>$('banner'));                  // 31.5  banner 2, 3.5 -> tapped, text 2, 10.0
-    at(45000,()=>strip(4));
-    at(45000,()=>{ state.fixed=true; go('worksheet');                   // 45.0  cut to the card, 4.0
-      const c=$('wsForm'); c.scrollTop=c.scrollHeight; });               //       (fixed first, so no amber flag or focus ring)
-    at(45400,appendCause);
-    tapAt(47000,()=>$('saveBtn'));                 // 47.0  taps Save
-    at(47400,()=>go('jobs'));
-    at(49000,resolved);                            // 49.0  banner 3, 2.0
-    tapAt(51000,()=>$('banner'));                  // 51.0  tapped, text 3, 5.0
-    at(56000,()=>go('end')); at(56000,()=>strip(-1));   // 56.0  end card, 8.0
-    at(63500,()=>document.querySelector('.stage').classList.add('fade'));
-    at(64000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
+    at(19500,()=>go('job'));                       // 19.5  cut back to the job, 1.5
+    tapAt(21000,()=>$('wsRow')); at(21000,()=>tab(2));    // 21.0  taps the worksheet row, 1.0
+    at(23000,fadeFill);                            // 23.0  seven fields rise, then still, 4.0
+    at(25800,()=>reveal($('saveBtn')));
+    tapAt(27000,()=>$('saveBtn'));                 // 27.0  taps Save...
+    at(27400,doComplete);                          //       ...which completes it, 3.0
+    at(30000,()=>tab(3));
+    tapAt(33500,()=>$('banner'));                  // 30.0  banner 2, 3.5 -> tapped, text 2, 10.0
+    at(43500,()=>{ state.fixed=true; go('worksheet');     // 43.5  the correction, 6.0 still
+      growCause(); centreCause(); });
+    at(43900,appendCause);
+    at(44900,()=>{ $('okLine').hidden=false; });
+    at(49500,()=>reveal($('saveBtn')));            // 49.5  taps Save, 1.5
+    tapAt(50300,()=>$('saveBtn'),true);
+    at(50700,()=>go('jobs'));
+    at(51000,()=>tab(4));
+    at(51000,resolved);                            // 51.0  banner 3, 2.0
+    tapAt(53000,()=>$('banner'));                  // 53.0  tapped, text 3, 5.0
+    at(58000,()=>go('end')); at(58000,()=>tab(-1));      // 58.0  end card, 8.0
+    at(65500,()=>document.querySelector('.stage').classList.add('fade'));
+    at(66000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
   }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
-  $('replayBtn').addEventListener('click',e=>{ e.stopPropagation(); if(AUTO) play(); });
-  $('phone').addEventListener('click',e=>{            // a real tap anywhere pauses; scripted taps do not
-    if(!AUTO || !e.isTrusted || e.target.closest('#replayBtn')) return;
-    e.stopPropagation(); e.preventDefault(); togglePause();
-  },true);
+  $('replayBtn').addEventListener('click',()=>{ if(AUTO) play(); });
+  $('pauseBtn').addEventListener('click',togglePause);
   addEventListener('keydown',e=>{ if(AUTO && e.code==='Space'){ e.preventDefault(); togglePause(); } });
+  (function bar(){                                  // 2 px loop progress along the top of the frame
+    const e = paused ? pausedAt-t0 : elapsed();
+    $('pbar').style.width = Math.min(100,e/LOOP*100)+'%';
+    requestAnimationFrame(bar);
+  })();
 
   if(AUTO){ document.body.classList.add('auto'); play(); } else reset();
 })();

@@ -21,12 +21,12 @@ mp4 () { # $1 = name
 mp4 desktop
 [ -f "$raw/mobile.webm" ] && mp4 mobile
 
-# GIF: 12 fps, 900px wide, shared palette. Stays well under 8 MB.
+# GIF: 10 fps, 820px wide, shared palette. Keeps the 66 s loop under 8 MB.
 pal=$(mktemp -t fd-palette).png
 ffmpeg -y -loglevel error -i "$raw/desktop.webm" \
-  -vf "fps=12,scale=900:-1:flags=lanczos,palettegen=max_colors=128" "$pal"
+  -vf "fps=10,scale=820:-1:flags=lanczos,palettegen=max_colors=128" "$pal"
 ffmpeg -y -loglevel error -i "$raw/desktop.webm" -i "$pal" \
-  -lavfi "fps=12,scale=900:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3" \
+  -lavfi "fps=10,scale=820:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3" \
   "$out/field-demo.gif"
 rm -f "$pal"
 
