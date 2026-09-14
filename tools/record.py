@@ -5,9 +5,9 @@
   python3 tools/record.py --skip-og  # videos only
 
 Outputs (video/ is gitignored):
-  video/raw/desktop.webm      1280x720, one full 68 s loop
-  video/raw/mobile.webm       390x844,  one full 68 s loop
-  video/shots/t{2,6,20,30,44,57,64}.png frames
+  video/raw/desktop.webm      1280x720, one full 64 s loop
+  video/raw/mobile.webm       390x844,  one full 64 s loop
+  video/shots/t{2,16,26,40,53,60}.png frames
   public/og.png               1200x630 share image, the gap text
 Then run tools/make-video.sh to produce the mp4s and the gif.
 """
@@ -25,9 +25,9 @@ from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 VIDEO = ROOT / "video"
-LOOP_MS = 68_000          # one full loop of the timeline
-SHOTS_MS = (2_000, 6_000, 20_000, 30_000, 44_000, 57_000, 64_000)
-OG_MS = 44_000            # mid-dwell on the gap text
+LOOP_MS = 64_000          # one full loop of the timeline
+SHOTS_MS = (2_000, 16_000, 26_000, 40_000, 53_000, 60_000)
+OG_MS = 40_000            # mid-dwell on the gap text
 
 
 def serve(directory):

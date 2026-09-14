@@ -22,6 +22,8 @@
   .screen.on{display:flex}
   .statusbar{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:13px;font-weight:600;color:#fff;background:var(--chrome)}
   .statusbar.light{color:var(--ink);background:transparent}
+  .statusbar.app{position:relative;align-items:center;padding:0 16px;background:#FBFBFC;color:var(--ink);border-bottom:1px solid #E4E7EA}
+  .statusbar.app .logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:16px;width:auto;display:block}
   .topbar{height:52px;background:var(--chrome);color:#fff;display:flex;align-items:center;padding:0 12px;gap:10px;font-weight:600;font-size:16px}
   .topbar .back{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:20px}
   .topbar .spacer{flex:1}
@@ -104,9 +106,6 @@
   .q.ok{box-shadow:inset 4px 0 0 var(--ok);background:#F5FBF7}
   .fade3{animation:cut .3s ease}
   /* app label, pause pill */
-  .apptag{position:absolute;top:104px;right:12px;z-index:15;padding:4px 10px;border-radius:999px;
-    background:#E7EAEE;color:#5B6770;font-size:11.5px;font-weight:600;opacity:0;transition:opacity .35s;pointer-events:none}
-  .apptag.on{opacity:1}
   .paused{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;pointer-events:none;
     padding:6px 15px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:12.5px;font-weight:600;
     opacity:0;transition:opacity .2s}
@@ -151,8 +150,8 @@
     .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
     .statusbar{display:none}
+    .statusbar.app{display:flex;height:34px}
     .banner{top:10px}
-    .apptag{top:60px}
   }
   @media (min-height:848px) and (min-width:431px){
     .auto .strip{display:flex}
@@ -170,21 +169,12 @@
 <div class="phone" id="phone">
 
   <div class="tip" id="tip" aria-hidden="true"></div>
-  <div class="apptag" id="appTag">Ibcos Gold · job card</div>
   <div class="paused" id="pausedPill">Paused</div>
 
   <!-- TITLE CARDS -->
   <section class="screen title-card" id="s-c1">
     <div class="tc">
       <p>Machinery Pilot checks dealers’ job cards and texts engineers what’s missing while they’re still at the machine.</p>
-    </div>
-  </section>
-  <section class="screen title-card" id="s-c2">
-    <div class="tc">
-      <b class="brand">Machinery Pilot</b>
-      <p>A dealer’s engineer fixes a machine under warranty.</p>
-      <p>The OEM rejects the claim.</p>
-      <p>The dealer does not recover it.</p>
     </div>
   </section>
 
@@ -216,14 +206,14 @@
 
   <!-- JOBS LIST -->
   <section class="screen on" id="s-jobs">
-    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
+    <div class="statusbar app"><span class="clk">13:58</span><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"><span>▲ ▲ 74%</span></div>
     <div class="topbar"><span style="font-size:18px">☰</span><span>Jobs (3)</span></div>
     <div class="content" id="jobsList"></div>
   </section>
 
   <!-- JOB DETAIL -->
   <section class="screen" id="s-job">
-    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
+    <div class="statusbar app"><span class="clk">13:58</span><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"><span>▲ ▲ 74%</span></div>
     <div class="topbar"><button class="back" data-go="jobs" aria-label="Back">‹</button><span>Job 48213</span><span class="spacer"></span><button class="tick" id="tickBtn" aria-label="Complete job" title="Complete job">✓</button></div>
     <div class="content">
       <div class="machine">
@@ -246,7 +236,7 @@
 
   <!-- WORKSHEET -->
   <section class="screen" id="s-ws">
-    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
+    <div class="statusbar app"><span class="clk">13:58</span><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"><span>▲ ▲ 74%</span></div>
     <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span id="wsTitle"></span></div>
     <div class="content" id="wsForm">
       <div class="q"><label>Hour meter reading<i>*</i></label><input id="q-hours" inputmode="numeric" placeholder="e.g. 1240"></div>
@@ -284,7 +274,7 @@
 <script>
 (function(){
   const $ = id => document.getElementById(id);
-  const screens = {jobs:$('s-jobs'), job:$('s-job'), worksheet:$('s-ws'), thread:$('s-thread'), c1:$('s-c1'), c2:$('s-c2'), end:$('s-end')};
+  const screens = {jobs:$('s-jobs'), job:$('s-job'), worksheet:$('s-ws'), thread:$('s-thread'), c1:$('s-c1'), end:$('s-end')};
   const AUTO = !new URLSearchParams(location.search).has('manual');
   const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let t0 = Date.now();
@@ -412,7 +402,7 @@ Thanks for your help!`;
   function msgDelay(kind){
     if(!AUTO) return kind==='start'?1500:3500;
     if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
-    return Math.max(700,35500-elapsed());                        // banner at 35.5 s
+    return Math.max(700,31500-elapsed());                        // banner at 31.5 s
   }
 
   function notify(title,body,onOpen){
@@ -448,7 +438,7 @@ Thanks for your help!`;
     clearTimers(); paused=false; $('pausedPill').classList.remove('on');
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
     $('threadBody').innerHTML=''; $('banner').classList.remove('on');
-    $('tip').classList.remove('on'); $('appTag').classList.remove('on'); setClock(CLOCK.open);
+    $('tip').classList.remove('on'); setClock(CLOCK.open);
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.rise,.fade3').forEach(e=>e.classList.remove('rise','fade3'));
     $('wrap-cause').classList.remove('ok'); STRIP.forEach(b=>b.classList.remove('on'));
@@ -517,31 +507,29 @@ Thanks for your help!`;
   function play(){
     reset(); t0=Date.now();
     go('c1');                                      //  0.0  card 1, 4.0
-    at(4000,()=>go('c2'));                         //  4.0  card 2, 4.0
-    at(8000,()=>{ go('job'); strip(0); $('appTag').classList.add('on'); });   //  8.0  job detail, 4.0
-    at(11600,()=>$('appTag').classList.remove('on'));
-    tapAt(12000,()=>$('startBtn'));                // 12.0  taps Start, 2.0
-    at(14000,()=>strip(1));
-    tapAt(16500,()=>$('banner'));                  // 14.0  banner 1, 2.5 -> tapped, text 1, 7.0
-    at(23500,()=>go('job'));                       // 23.5  cut back to the job, 2.0
-    tapAt(25500,()=>$('wsRow')); at(25500,()=>strip(2));   // 25.5  taps the worksheet row, 1.0
-    at(27500,fadeFill);                            // 27.5  seven fields rise, then still, 5.0
-    at(30300,()=>reveal($('saveBtn')));
-    tapAt(32500,()=>$('saveBtn'));                 // 32.5  taps Save...
-    at(32900,doComplete);                          //       ...which completes it, 3.0
-    at(35500,()=>strip(3));
-    tapAt(39000,()=>$('banner'));                  // 35.5  banner 2, 3.5 -> tapped, text 2, 10.0
-    at(49000,()=>strip(4));
-    at(49000,()=>{ state.fixed=true; go('worksheet');                   // 49.0  cut to the card, 4.0
+    at(4000,()=>{ go('job'); strip(0); });         //  4.0  job detail, 4.0
+    tapAt(8000,()=>$('startBtn'));                 //  8.0  taps Start, 2.0
+    at(10000,()=>strip(1));
+    tapAt(12500,()=>$('banner'));                  // 10.0  banner 1, 2.5 -> tapped, text 1, 7.0
+    at(19500,()=>go('job'));                       // 19.5  cut back to the job, 2.0
+    tapAt(21500,()=>$('wsRow')); at(21500,()=>strip(2));   // 21.5  taps the worksheet row, 1.0
+    at(23500,fadeFill);                            // 23.5  seven fields rise, then still, 5.0
+    at(26300,()=>reveal($('saveBtn')));
+    tapAt(28500,()=>$('saveBtn'));                 // 28.5  taps Save...
+    at(28900,doComplete);                          //       ...which completes it, 3.0
+    at(31500,()=>strip(3));
+    tapAt(35000,()=>$('banner'));                  // 31.5  banner 2, 3.5 -> tapped, text 2, 10.0
+    at(45000,()=>strip(4));
+    at(45000,()=>{ state.fixed=true; go('worksheet');                   // 45.0  cut to the card, 4.0
       const c=$('wsForm'); c.scrollTop=c.scrollHeight; });               //       (fixed first, so no amber flag or focus ring)
-    at(49400,appendCause);
-    tapAt(51000,()=>$('saveBtn'));                 // 51.0  taps Save
-    at(51400,()=>go('jobs'));
-    at(53000,resolved);                            // 53.0  banner 3, 2.0
-    tapAt(55000,()=>$('banner'));                  // 55.0  tapped, text 3, 5.0
-    at(60000,()=>go('end')); at(60000,()=>strip(-1));   // 60.0  end card, 8.0
-    at(67500,()=>document.querySelector('.stage').classList.add('fade'));
-    at(68000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
+    at(45400,appendCause);
+    tapAt(47000,()=>$('saveBtn'));                 // 47.0  taps Save
+    at(47400,()=>go('jobs'));
+    at(49000,resolved);                            // 49.0  banner 3, 2.0
+    tapAt(51000,()=>$('banner'));                  // 51.0  tapped, text 3, 5.0
+    at(56000,()=>go('end')); at(56000,()=>strip(-1));   // 56.0  end card, 8.0
+    at(63500,()=>document.querySelector('.stage').classList.add('fade'));
+    at(64000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
   }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
