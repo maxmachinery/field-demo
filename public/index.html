@@ -12,6 +12,7 @@
     --accent:#F2B705; --mp-yellow:#E9C35A;   /* most saturated yellow in logo.png */
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}   /* .machine span{display:block} was beating it */
   html,body{height:100%}
   body{background:#15191D;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -138,15 +139,22 @@
   .scene.static{opacity:1;transition:none}                         /* click-through: no fade */
   .scene span{display:inline-block}
   .scene.scrim span{background:rgba(16,16,20,.9);padding:9px 15px;border-radius:12px}
-  /* click-through nav */
-  .nav{display:none;position:absolute;z-index:70;border-radius:50%;align-items:center;justify-content:center;line-height:1}
+  /* click-through nav: outside the frame on desktop */
+  .nav{display:none;position:absolute;z-index:70;top:50%;transform:translateY(-50%);
+       border-radius:50%;align-items:center;justify-content:center;line-height:1}
   body.view .nav:not([hidden]){display:flex}
-  #nextBtn{right:16px;bottom:16px;width:48px;height:48px;background:var(--mp-yellow);color:#101014;
+  #nextBtn{left:calc(50% + 219px);width:48px;height:48px;background:var(--mp-yellow);color:#101014;
     font-size:22px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3)}
-  #backBtn{left:16px;bottom:16px;width:32px;height:32px;background:rgba(48,56,64,.55);color:#fff;font-size:18px}
-  body.view .composer{padding-right:74px}   /* keep the send circle clear of Next */
-  body.view #wsForm{padding-top:60px}       /* drops Save clear of the Next button */
-  @media (min-height:800px){ body.view #wsForm{padding-top:105px} }
+  #backBtn{right:calc(50% + 219px);width:32px;height:32px;background:rgba(48,56,64,.55);color:#fff;font-size:18px}
+  /* the pulsing tap marker */
+  .ring{display:none;position:absolute;z-index:75;width:56px;height:56px;border-radius:50%;
+    border:3px solid var(--mp-yellow);background:transparent;pointer-events:none}
+  body.view .ring.on{display:block;animation:tapring 1.2s ease-in-out infinite}
+  @keyframes tapring{0%,100%{transform:scale(.85);opacity:.9}50%{transform:scale(1.15);opacity:.3}}
+  /* caption band on the worksheet views */
+  .vcap{position:absolute;left:0;right:0;z-index:16;padding:11px 16px;text-align:center;
+    background:rgba(16,16,20,.92);color:var(--mp-yellow);font-size:16px;font-weight:700;line-height:1.35}
+  body.view .content{padding-bottom:96px}   /* room to scroll, and to clear the mobile buttons */
   /* pause */
   .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
     background:rgba(0,0,0,.45);color:#fff;font-size:11px;line-height:1;align-items:center;justify-content:center}
@@ -167,6 +175,10 @@
   @keyframes ping{50%{transform:scale(.82);background:rgba(255,255,255,.45)}}
   @media (max-width:430px){
     .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
+    body.view .nav{top:auto;bottom:16px;transform:none}
+    body.view #nextBtn{left:auto;right:16px}
+    body.view #backBtn{right:auto;left:16px}
+    body.view .composer{padding-right:74px}
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
     .statusbar{display:none}
     .statusbar.app{display:flex;height:40px}
@@ -187,8 +199,7 @@
   <div class="paused" id="pausedPill">Paused</div>
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="pbtn" id="pauseBtn" aria-label="Pause">❚❚</button>
-  <button class="nav" id="backBtn" aria-label="Previous" hidden>‹</button>
-  <button class="nav" id="nextBtn" aria-label="Next">→</button>
+  <div class="vcap" id="vcap" hidden></div>
 
   <!-- TITLE CARDS -->
   <section class="screen title-card" id="s-c1">
@@ -208,7 +219,7 @@
       <img class="cardlogo" src="logo.png" alt="Machinery Pilot" width="184" height="32">
       <div class="ectext">
         <p>Ensure complete evidence before the engineer leaves the machine.</p>
-        <p>Without changing any system or how your teams work.</p>
+        <p>Your engineers keep using their existing job app. Machinery Pilot texts them when warranty evidence is missing.</p>
       </div>
       <p class="proof" id="proofPoint" hidden></p>
       <a class="cta" href="https://calendly.com/max-machinerypilot/25-minutes-with-max" target="_blank" rel="noopener">Book a meeting</a>
@@ -288,6 +299,9 @@
 
 </div>
 
+<button class="nav" id="backBtn" aria-label="Previous" hidden>‹</button>
+<button class="nav" id="nextBtn" aria-label="Next">→</button>
+<div class="ring" id="ring" aria-hidden="true"></div>
 </div>
 </div>
 
@@ -585,7 +599,7 @@ Update the job card before leaving.`;
     function(done){ go('end'); at(500,done); }       // stop 6 -> 7
   ];
 
-  // ---- default mode: twelve static views, one button
+  // ---- default mode: a clickable prototype, one action per view
   const VIEW_SCREEN = {1:'c1',2:'job',3:'job',4:'thread',5:'worksheet',6:'job',
                        7:'job',8:'thread',9:'worksheet',10:'jobs',11:'thread',12:'end'};
   const VIEW_BANNER = {
@@ -593,48 +607,91 @@ Update the job card before leaving.`;
     7:()=>notify(H.feedback,'Two more bits before the claim goes off.',()=>{}),
     10:()=>notify(H.feedback,'Evidence complete. Ready for the office.',()=>{})
   };
+  const VIEW_TARGET = {                          // the one live control on that view
+    2:()=>$('startBtn'), 3:()=>$('banner'), 6:()=>$('travelBtn'), 7:()=>$('banner'), 10:()=>$('banner')
+  };
+  const VCAP = {5:'The engineer completes the repair and fills in the job card.',
+                9:'The engineer adds the missing details.'};
   const VIEWS=12, SLIDE=450;
   let view=1, busy=false, swiped=false;
 
-  function label(text,anchor){       // static yellow line, no fade
-    const el=$('scene'), a=anchor?anchor():null;
-    el.classList.remove('on','scrim','static'); el.textContent='';
-    if(!text||!a) return;
+  function ring(el){
+    const r=$('ring'), st=document.querySelector('.stage');
+    if(!el){ r.classList.remove('on'); return; }
+    const a=el.getBoundingClientRect(), b=st.getBoundingClientRect();
+    if(!a.width){ r.classList.remove('on'); return; }
+    r.style.left=Math.round(a.left-b.left+a.width/2-28)+'px';
+    r.style.top=Math.round(a.top-b.top+a.height/2-28)+'px';
+    r.classList.add('on');
+  }
+  function caption(text){
+    const el=$('vcap');
+    if(!text){ el.hidden=true; return; }
     const ph=$('phone').getBoundingClientRect();
-    el.appendChild(document.createElement('span')).textContent=text;
-    el.style.top=Math.round(Math.min(a.getBoundingClientRect().bottom-ph.top+24, ph.height-110))+'px';
-    el.classList.add('static');
+    const bar=document.querySelector('.screen.on .topbar');
+    el.textContent=text; el.hidden=false;
+    el.style.top=Math.round((bar?bar.getBoundingClientRect().bottom:ph.top+90)-ph.top)+'px';
+  }
+  function glide(c,top,ms){         // a slow, visible scroll
+    const from=c.scrollTop, d=top-from, t0=performance.now();
+    (function step(now){
+      const k=Math.min(1,(now-t0)/ms), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+      c.scrollTop=from+d*e;
+      if(k<1) requestAnimationFrame(step);
+    })(performance.now());
+  }
+  function causeTop(){              // scrollTop that leaves Cause centred
+    const c=$('wsForm'), q=$('wrap-cause');
+    return c.scrollTop + q.getBoundingClientRect().top - c.getBoundingClientRect().top
+           - (c.clientHeight - q.getBoundingClientRect().height)/2;
   }
 
-  function buildView(n){             // every view is rebuilt from scratch, so back is exact
-    reset();
+  const VIEW_ANIM = {
+    5:function(done){               // fields land one by one while the card scrolls to Cause
+      fadeFill();
+      at(1200,()=>glide($('wsForm'),causeTop(),1200));
+      at(2900,done);
+    },
+    9:function(done){               // scroll to Cause, then the missing detail goes on
+      glide($('wsForm'),causeTop(),1200);
+      at(1400,()=>{ appendCause(); at(120,()=>glide($('wsForm'),causeTop(),250)); });
+      at(2600,()=>{ $('okLine').hidden=false; done(); });
+    }
+  };
+
+  function buildView(n,anim){       // rebuilt from scratch, so nothing leaks between views
+    reset(); caption(VCAP[n]||null);
     if(n>=3){ state.started=true; state.startAt=CLOCK.started; addMsg(START_MSG,'in',CLOCK.started); }
-    if(n>=5) fillWorksheet();
-    if(n>=6){ state.travel=true; state.doneAt=CLOCK.done; }
+    if(n>=5 && !(anim&&n===5)) fillWorksheet();
+    if(n>=7){ state.travel=true; state.doneAt=CLOCK.done; }
     if(n>=7) addMsg(GAP_MSG,'in',CLOCK.done,'big');
-    if(n>=9){ state.fixed=true; state.cause=state.cause+CAUSE_ADD; }
+    if(n>=9 && !(anim&&n===9)){ state.fixed=true; state.cause=state.cause+CAUSE_ADD; }
     if(n>=10) addMsg(DONE_MSG,'in',CLOCK.resolved);
     if(n>=11) state.evidence=true;
     syncWs(); syncJob();
     go(VIEW_SCREEN[n]);
-    if(n===5) $('wsForm').scrollTop=0;                      // Cause sits mid card unscrolled
-    if(n===9){ growCause(); $('wsForm').scrollTop=0; $('wrap-cause').classList.add('ok'); $('okLine').hidden=false; }
-    if(n===2) label('Your job app, as usual',()=>$('startBtn'));
-    else if(n===4) label('Text arrives instantly',()=>$('threadBody').querySelector('.msg'));
-    else label(null);
+    if(n===3){ const b=$('travelBtn');           // job started, nothing to add yet
+      b.hidden=false; b.disabled=true; b.textContent='Job started '+CLOCK.started;
+      b.style.background='var(--chrome-2)'; b.style.opacity='1'; }
+    if(n===5 && !anim) $('wsForm').scrollTop=causeTop();
+    if(n===9){ growCause(); $('wrap-cause').classList.toggle('ok',!anim);
+      $('okLine').hidden=anim; if(!anim) $('wsForm').scrollTop=causeTop(); }
   }
 
-  function showView(n,slide){
-    view=n; busy=false; buildView(n);
-    const bn=VIEW_BANNER[n];
-    if(bn && slide){                 // only the banners animate
-      busy=true; bn();
-      at(SLIDE,()=>{ busy=false; $('nextBtn').hidden=(view===VIEWS); });
-    } else if(bn){                   // arriving backwards: already in place
-      const b=$('banner'); b.style.transition='none'; bn(); void b.offsetHeight; b.style.transition='';
-    }
-    $('nextBtn').hidden = (n===VIEWS) || busy;
-    $('backBtn').hidden = (n===1);
+  function navOff(){ $('nextBtn').hidden=true; $('backBtn').hidden=(view===1); ring(null); }
+  function navOn(){
+    const t=VIEW_TARGET[view];
+    $('nextBtn').hidden = !!t || view===VIEWS;
+    $('backBtn').hidden = (view===1);
+    ring(t ? t() : (view===VIEWS ? null : $('nextBtn')));
+  }
+  function showView(n,anim){
+    view=n; busy=false; buildView(n,anim);
+    const bn=VIEW_BANNER[n], an=VIEW_ANIM[n];
+    if(bn && anim){ busy=true; navOff(); bn(); at(SLIDE,()=>{ busy=false; navOn(); }); }
+    else if(bn){ const b=$('banner'); b.style.transition='none'; bn(); void b.offsetHeight; b.style.transition=''; navOn(); }
+    else if(an && anim){ busy=true; navOff(); an(()=>{ busy=false; navOn(); }); }
+    else navOn();
   }
   function next(){ if(!VIEW||busy||view>=VIEWS) return; showView(view+1,true); }
   function prev(){ if(!VIEW||busy||view<=1) return; showView(view-1,false); }
@@ -653,10 +710,13 @@ Update the job card before leaving.`;
     if(e.code==='ArrowRight'||e.code==='Space'){ e.preventDefault(); next(); }
     else if(e.code==='ArrowLeft'){ e.preventDefault(); prev(); }
   });
-  $('phone').addEventListener('click',e=>{            // a tap anywhere advances
-    if(!VIEW || !e.isTrusted || swiped) return;
-    if(e.target.closest('.cta,#replayBtn,#nextBtn,#backBtn')) return;
-    e.stopPropagation(); e.preventDefault(); next();
+  $('phone').addEventListener('click',e=>{            // only the ringed control is live
+    if(!VIEW || !e.isTrusted) return;
+    if(e.target.closest('.cta,#replayBtn')) return;   // the end card's own buttons
+    e.stopPropagation(); e.preventDefault();
+    if(busy||swiped) return;
+    const t=VIEW_TARGET[view]; if(!t) return;
+    const el=t(); if(el && (e.target===el || el.contains(e.target))) next();
   },true);
   (function(){
     let sx=null;
