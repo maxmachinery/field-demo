@@ -147,14 +147,14 @@
   .cardbtn{display:none;align-self:center;margin-top:26px;height:44px;padding:0 34px;border-radius:10px;
     background:var(--mp-yellow);color:#101014;font-size:16px;font-weight:600}
   body.view .cardbtn{display:block}
-  /* the pulsing tap marker */
-  .ring{display:none;position:absolute;z-index:75;width:56px;height:56px;border-radius:50%;
+  /* the pulsing tap marker: a child of the control, so it cannot drift */
+  .ring{display:none;position:absolute;left:50%;top:50%;z-index:75;width:56px;height:56px;border-radius:50%;
     border:3px solid var(--mp-yellow);background:transparent;pointer-events:none}
   body.view .ring.on{display:block;animation:tapring 1.2s ease-in-out infinite}
   @keyframes tapring{0%,100%{transform:scale(.85);opacity:.9}50%{transform:scale(1.15);opacity:.3}}
-  /* caption band on the worksheet views */
-  .vcap{position:absolute;left:0;right:0;z-index:16;padding:11px 16px;text-align:center;
-    background:rgba(16,16,20,.92);color:var(--mp-yellow);font-size:16px;font-weight:700;line-height:1.35}
+  /* caption band, in the flow under the worksheet header */
+  .vcap{flex:none;padding:11px 16px;text-align:center;
+    background:#101014;color:var(--mp-yellow);font-size:16px;font-weight:700;line-height:1.35}
   body.view .content{padding-bottom:96px}   /* room to scroll, and to clear the mobile buttons */
   /* pause */
   .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
@@ -199,7 +199,6 @@
   <div class="paused" id="pausedPill">Paused</div>
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="pbtn" id="pauseBtn" aria-label="Pause">❚❚</button>
-  <div class="vcap" id="vcap" hidden></div>
 
   <!-- TITLE CARDS -->
   <section class="screen title-card" id="s-c1">
@@ -273,6 +272,7 @@
   <section class="screen" id="s-ws">
     <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="66" height="22"></div>
     <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span id="wsTitle"></span></div>
+    <div class="vcap" id="vcap" hidden></div>
     <div class="content" id="wsForm">
       <div class="q"><label>Hour meter reading<i>*</i></label><input id="q-hours" inputmode="numeric" placeholder="e.g. 1240"></div>
       <div class="q"><label>Hour meter photo<i>*</i></label><button class="photo" id="q-hourphoto">📷 Take photo</button></div>
@@ -405,7 +405,7 @@
     $('startBtn').hidden=state.started; $('travelBtn').hidden=!state.started;
     $('travelBtn').disabled=state.travel;
     $('travelLine').hidden=!state.travel;
-    const ready = !VIEW || curView===7;   // click-through: travel opens once the card is complete
+    const ready = !VIEW || curView===6;   // click-through: travel opens once the card is complete
     if(state.travel){ $('travelBtn').textContent='Travel started '+state.doneAt; $('travelBtn').disabled=true;
       $('travelBtn').style.opacity='1'; $('travelBtn').style.background='var(--chrome-2)'; }
     else if(!ready){ $('travelBtn').textContent='Job started '+CLOCK.started; $('travelBtn').disabled=true;
@@ -604,52 +604,49 @@ Update the job card before leaving.`;
   ];
 
   // ---- default mode: a clickable prototype, one live control per view
-  const VIEW_SCREEN = {1:'c1',2:'job',3:'job',4:'thread',5:'job',6:'worksheet',7:'job',
-                       8:'job',9:'thread',10:'job',11:'worksheet',12:'jobs',13:'thread',14:'end'};
+  const VIEW_SCREEN = {1:'c1',2:'job',3:'job',4:'thread',5:'worksheet',6:'job',
+                       7:'job',8:'thread',9:'worksheet',10:'jobs',11:'thread',12:'end'};
   const VIEW_BANNER = {
     3:()=>notify(H.brief,`Develon's warranty team requires 3 items on this job.`,()=>{}),
-    8:()=>notify(H.feedback,'Two more bits before the claim goes off.',()=>{}),
-    12:()=>notify(H.feedback,'Evidence complete. Ready for the office.',()=>{})
+    7:()=>notify(H.feedback,'Two more bits before the claim goes off.',()=>{}),
+    10:()=>notify(H.feedback,'Evidence complete. Ready for the office.',()=>{})
   };
-  const chev = ()=>$('wsRow').querySelector('.chev');
-  const VIEW_TARGET = {                          // {el: the live control, ring: what the ring sits on}
-    1:{el:()=>$('cardStart')},
+  const VIEW_TARGET = {                          // the one live control on each view
+    1:{el:()=>$('cardStart'), noRing:true},      // live, but unmarked
     2:{el:()=>$('startBtn')},
     3:{el:()=>$('banner')},
     4:{el:()=>$('threadBack'), size:48},
-    5:{el:()=>$('wsRow'), ring:chev, size:40},
-    6:{el:()=>$('saveBtn')},
-    7:{el:()=>$('travelBtn')},
-    8:{el:()=>$('banner')},
-    9:{el:()=>$('threadBack'), size:48},
-    10:{el:()=>$('wsRow'), ring:chev, size:40},
-    11:{el:()=>$('saveBtn')},
-    12:{el:()=>$('banner')},
-    13:{el:()=>$('threadBack'), size:48}
+    5:{el:()=>$('saveBtn')},
+    6:{el:()=>$('travelBtn')},
+    7:{el:()=>$('banner')},
+    8:{el:()=>$('threadBack'), size:48},
+    9:{el:()=>$('saveBtn')},
+    10:{el:()=>$('banner')},
+    11:{el:()=>$('threadBack'), size:48}
   };
-  const VCAP = {6:'The engineer completes the repair and fills in the job card.',
-                11:'The engineer adds the missing details.'};
-  const VIEWS=14, SLIDE=450;
-  let busy=false, swiped=false;
+  const VCAP = {5:'The engineer completes the repair and fills in the job card.',
+                9:'The engineer adds the missing details.'};
+  const VIEWS=12, SLIDE=450;
+  let busy=false, swiped=false, ringHost=null;
 
-  function ring(el,size){
-    const r=$('ring'), st=document.querySelector('.stage');
-    if(!el){ r.classList.remove('on'); return; }
-    const a=el.getBoundingClientRect(), b=st.getBoundingClientRect();
-    if(!a.width){ r.classList.remove('on'); return; }
+  function ring(el,size){                        // the ring is a child of the control it marks
+    let r=$('ring');
+    if(!r){ r=document.createElement('div'); r.id='ring'; r.className='ring'; r.setAttribute('aria-hidden','true'); }
+    r.classList.remove('on');
+    if(ringHost && ringHost!==el){ ringHost.style.position=ringHost.dataset.ringpos||''; delete ringHost.dataset.ringpos; }
+    ringHost=null;
+    if(!el || !el.getBoundingClientRect().width){ document.querySelector('.stage').appendChild(r); return; }
+    if(getComputedStyle(el).position==='static'){ el.dataset.ringpos=el.style.position||''; el.style.position='relative'; }
     const d=size||56;
     r.style.width=r.style.height=d+'px';
-    r.style.left=Math.round(a.left-b.left+a.width/2-d/2)+'px';
-    r.style.top=Math.round(a.top-b.top+a.height/2-d/2)+'px';
+    r.style.marginLeft=r.style.marginTop=(-d/2)+'px';
+    el.appendChild(r); ringHost=el;
     r.classList.add('on');
   }
   function caption(text){
     const el=$('vcap');
     if(!text){ el.hidden=true; return; }
-    const ph=$('phone').getBoundingClientRect();
-    const bar=document.querySelector('.screen.on .topbar');
     el.textContent=text; el.hidden=false;
-    el.style.top=Math.round((bar?bar.getBoundingClientRect().bottom:ph.top+90)-ph.top)+'px';
   }
   function glide(c,top,ms){         // a slow, visible scroll
     const from=c.scrollTop, d=top-from, t0=performance.now();
@@ -666,12 +663,12 @@ Update the job card before leaving.`;
   }
 
   const VIEW_ANIM = {
-    6:function(done){               // fields land one by one while the card scrolls to Cause
+    5:function(done){               // fields land one by one while the card scrolls to Cause
       fadeFill();
       at(1200,()=>glide($('wsForm'),causeTop(),1200));
       at(2900,done);
     },
-    11:function(done){              // scroll to Cause, then the missing detail goes on
+    9:function(done){               // scroll to Cause, then the missing detail goes on
       glide($('wsForm'),causeTop(),1200);
       at(1400,()=>{ appendCause(); at(120,()=>glide($('wsForm'),causeTop(),250)); });
       at(2600,()=>{ $('okLine').hidden=false; done(); });
@@ -679,17 +676,18 @@ Update the job card before leaving.`;
   };
 
   function buildView(n,anim){       // rebuilt from scratch, so nothing leaks between views
+    ring(null);                     // detach first: syncJob rewrites button text, which would eat it
     reset(); caption(VCAP[n]||null);
     if(n>=3){ state.started=true; state.startAt=CLOCK.started; addMsg(START_MSG,'in',CLOCK.started); }
-    if(n>=6 && !(anim&&n===6)) fillWorksheet();
-    if(n>=8){ state.travel=true; state.doneAt=CLOCK.done; addMsg(GAP_MSG,'in',CLOCK.done,'big'); }
-    if(n>=11 && !(anim&&n===11)){ state.fixed=true; state.cause=state.cause+CAUSE_ADD; }
-    if(n>=12) addMsg(DONE_MSG,'in',CLOCK.resolved);
-    if(n>=13) state.evidence=true;
+    if(n>=5 && !(anim&&n===5)) fillWorksheet();
+    if(n>=7){ state.travel=true; state.doneAt=CLOCK.done; addMsg(GAP_MSG,'in',CLOCK.done,'big'); }
+    if(n>=9 && !(anim&&n===9)){ state.fixed=true; state.cause=state.cause+CAUSE_ADD; }
+    if(n>=10) addMsg(DONE_MSG,'in',CLOCK.resolved);
+    if(n>=11) state.evidence=true;
     syncWs(); syncJob();
     go(VIEW_SCREEN[n]);
-    if(n===6 && !anim) $('wsForm').scrollTop=causeTop();
-    if(n===11){ growCause(); $('wrap-cause').classList.toggle('ok',!anim);
+    if(n===5 && !anim) $('wsForm').scrollTop=causeTop();
+    if(n===9){ growCause(); $('wrap-cause').classList.toggle('ok',!anim);
       $('okLine').hidden=anim; if(!anim) $('wsForm').scrollTop=causeTop(); }
   }
 
@@ -697,7 +695,7 @@ Update the job card before leaving.`;
   function navOn(){
     const t=VIEW_TARGET[curView];
     $('backBtn').hidden = (curView===1);
-    ring(t ? (t.ring||t.el)() : null, t && t.size);
+    ring((t && !t.noRing) ? t.el() : null, t && t.size);
   }
   function showView(n,anim){
     curView=n; busy=false; buildView(n,anim);
