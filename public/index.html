@@ -152,10 +152,15 @@
     border:3px solid var(--mp-yellow);background:transparent;pointer-events:none}
   body.view .ring.on{display:block;animation:tapring 1.2s ease-in-out infinite}
   @keyframes tapring{0%,100%{transform:scale(.85);opacity:.9}50%{transform:scale(1.15);opacity:.3}}
+  /* callout pointing up at the wordmark (view 2 only) */
+  .callout{position:absolute;z-index:18;right:10px;padding:8px 14px;border-radius:14px;background:#101014;
+    color:#fff;font-size:14px;font-weight:600;line-height:1.3;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+  .callout::before{content:"";position:absolute;top:-8px;left:var(--tail,38px);
+    border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid #101014}
   /* caption band, in the flow under the worksheet header */
   .vcap{flex:none;padding:11px 16px;text-align:center;
     background:#101014;color:var(--mp-yellow);font-size:16px;font-weight:700;line-height:1.35}
-  body.view .content{padding-bottom:96px}   /* room to scroll, and to clear the mobile buttons */
+  body.view .content{padding-bottom:96px}   /* Save ends clear of the grey back button */
   /* pause */
   .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
     background:rgba(0,0,0,.45);color:#fff;font-size:11px;line-height:1;align-items:center;justify-content:center}
@@ -196,6 +201,7 @@
 <div class="phone" id="phone">
 
   <div class="tip" id="tip" aria-hidden="true"></div>
+  <div class="callout" id="callout" hidden>Works with your existing app</div>
   <div class="paused" id="pausedPill">Paused</div>
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="pbtn" id="pauseBtn" aria-label="Pause">❚❚</button>
@@ -219,7 +225,8 @@
       <img class="cardlogo" src="logo.png" alt="Machinery Pilot" width="184" height="32">
       <div class="ectext">
         <p>Ensure complete evidence before the engineer leaves the machine.</p>
-        <p>Your engineers keep using their existing job app. Machinery Pilot texts them when warranty evidence is missing.</p>
+        <p>Your engineers keep using their existing job app.</p>
+        <p>Machinery Pilot texts them when warranty evidence is missing.</p>
       </div>
       <p class="proof" id="proofPoint" hidden></p>
       <a class="cta" href="https://calendly.com/max-machinerypilot/25-minutes-with-max" target="_blank" rel="noopener">Book a meeting</a>
@@ -662,18 +669,34 @@ Update the job card before leaving.`;
            - (c.clientHeight - q.getBoundingClientRect().height)/2;
   }
 
+  function toBottom(ms){ const c=$('wsForm'); glide(c,c.scrollHeight-c.clientHeight,ms); }
   const VIEW_ANIM = {
-    5:function(done){               // fields land one by one while the card scrolls to Cause
+    5:function(done){               // fill, settle on Cause, then reveal Save
       fadeFill();
       at(1200,()=>glide($('wsForm'),causeTop(),1200));
-      at(2900,done);
+      at(3900,()=>toBottom(800));   // 1.5 s holding on Cause first
+      at(4800,done);
     },
-    9:function(done){               // scroll to Cause, then the missing detail goes on
+    9:function(done){               // scroll to Cause, add the detail, then reveal Save
       glide($('wsForm'),causeTop(),1200);
       at(1400,()=>{ appendCause(); at(120,()=>glide($('wsForm'),causeTop(),250)); });
-      at(2600,()=>{ $('okLine').hidden=false; done(); });
+      at(2600,()=>{ $('okLine').hidden=false; });
+      at(4100,()=>toBottom(800));   // 1.5 s holding on the finished Cause
+      at(5000,done);
     }
   };
+
+  function callout(on){             // speech bubble aimed at the wordmark
+    const c=$('callout');
+    if(!on){ c.hidden=true; return; }
+    const ph=$('phone').getBoundingClientRect();
+    const sb=document.querySelector('.screen.on .statusbar');
+    const logo=document.querySelector('.screen.on .logo');
+    c.hidden=false;
+    c.style.top=Math.round((sb?sb.getBoundingClientRect().bottom:ph.top+50)-ph.top+8)+'px';
+    if(logo){ const cr=c.getBoundingClientRect(), lr=logo.getBoundingClientRect();
+      c.style.setProperty('--tail',Math.round(Math.min(Math.max(lr.left+lr.width/2-cr.left,16),cr.width-16))+'px'); }
+  }
 
   function buildView(n,anim){       // rebuilt from scratch, so nothing leaks between views
     ring(null);                     // detach first: syncJob rewrites button text, which would eat it
@@ -685,10 +708,11 @@ Update the job card before leaving.`;
     if(n>=10) addMsg(DONE_MSG,'in',CLOCK.resolved);
     if(n>=11) state.evidence=true;
     syncWs(); syncJob();
-    go(VIEW_SCREEN[n]);
-    if(n===5 && !anim) $('wsForm').scrollTop=causeTop();
+    go(VIEW_SCREEN[n]); callout(n===2);
+    if(n===5 && !anim){ const c=$('wsForm'); c.scrollTop=c.scrollHeight-c.clientHeight; }
     if(n===9){ growCause(); $('wrap-cause').classList.toggle('ok',!anim);
-      $('okLine').hidden=anim; if(!anim) $('wsForm').scrollTop=causeTop(); }
+      $('okLine').hidden=anim;
+      if(!anim){ const c=$('wsForm'); c.scrollTop=c.scrollHeight-c.clientHeight; } }
   }
 
   function navOff(){ $('backBtn').hidden=(curView===1); ring(null); }
