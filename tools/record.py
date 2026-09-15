@@ -5,9 +5,9 @@
   python3 tools/record.py --skip-og  # videos only
 
 Outputs (video/ is gitignored):
-  video/raw/desktop.webm      1280x720, one full 68 s loop
-  video/raw/mobile.webm       390x844,  one full 68 s loop
-  video/shots/t{3,17,27,40,48,57,64}.png frames
+  video/raw/desktop.webm      1280x720, one full 73 s run
+  video/raw/mobile.webm       390x844,  one full 73 s run
+  video/shots/t{4,18,28,41,49,58,66}.png frames
   public/og.png               1200x630 share image, the corrected Cause
 Then run tools/make-video.sh to produce the mp4s and the gif.
 """
@@ -19,15 +19,16 @@ import shutil
 import socketserver
 import sys
 import threading
+import time
 
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 VIDEO = ROOT / "video"
-LOOP_MS = 68_000          # one full loop of the timeline
-SHOTS_MS = (3_000, 17_000, 27_000, 40_000, 48_000, 57_000, 64_000)
-OG_MS = 48_000            # the corrected Cause
+LOOP_MS = 73_000          # 69 s run, plus 4 s holding on the end card
+SHOTS_MS = (4_000, 18_000, 28_000, 41_000, 49_000, 58_000, 66_000)
+OG_MS = 49_000            # the corrected Cause
 
 
 def serve(directory):
@@ -38,7 +39,8 @@ def serve(directory):
     return httpd, "http://127.0.0.1:%d/" % httpd.server_address[1]
 
 
-def record(browser, base, name, width, height, mobile=False, shots=()):
+def record(browser, base, name, width, height, mobile=False):
+    """One clean pass: no screenshots, so nothing stalls the video compositor."""
     out = VIDEO / "raw" / name
     if out.exists():
         shutil.rmtree(out)
@@ -52,15 +54,9 @@ def record(browser, base, name, width, height, mobile=False, shots=()):
     )
     page = ctx.new_page()
     page.goto(base, wait_until="load")
-    page.wait_for_timeout(150)          # let the first caption land before t=0
-    taken, elapsed = 0, 0
-    for mark in shots:
-        page.wait_for_timeout(mark - elapsed)
-        elapsed = mark
-        (VIDEO / "shots").mkdir(parents=True, exist_ok=True)
-        page.screenshot(path=str(VIDEO / "shots" / ("t%d.png" % (mark // 1000))))
-        taken += 1
-    page.wait_for_timeout(LOOP_MS - elapsed)
+    started = time.monotonic()
+    left = LOOP_MS / 1000 - (time.monotonic() - started)
+    page.wait_for_timeout(left * 1000)
     ctx.close()                          # flushes the video file
     webm = next(out.glob("*.webm"))
     final = VIDEO / "raw" / ("%s.webm" % name)
@@ -68,7 +64,23 @@ def record(browser, base, name, width, height, mobile=False, shots=()):
         final.unlink()
     webm.rename(final)
     shutil.rmtree(out)
-    print("recorded %s (%dx%d, %d shots)" % (final.relative_to(ROOT), width, height, taken))
+    print("recorded %s (%dx%d)" % (final.relative_to(ROOT), width, height))
+
+
+def frames(browser, base, marks):
+    """Verification stills, on their own run so the video never sees them."""
+    ctx = browser.new_context(viewport={"width": 1280, "height": 720}, device_scale_factor=1)
+    page = ctx.new_page()
+    page.goto(base, wait_until="load")
+    started = time.monotonic()
+    (VIDEO / "shots").mkdir(parents=True, exist_ok=True)
+    for mark in marks:
+        left = mark / 1000 - (time.monotonic() - started)
+        if left > 0:
+            page.wait_for_timeout(left * 1000)
+        page.screenshot(path=str(VIDEO / "shots" / ("t%d.png" % (mark // 1000))))
+    ctx.close()
+    print("wrote %d frames to video/shots" % len(marks))
 
 
 def og_image(browser, base):
@@ -100,8 +112,9 @@ def main():
         with sync_playwright() as p:
             browser = p.chromium.launch()
             if not args.skip_video:
-                record(browser, base, "desktop", 1280, 720, shots=SHOTS_MS)
+                record(browser, base, "desktop", 1280, 720)
                 record(browser, base, "mobile", 390, 844, mobile=True)
+                frames(browser, base, SHOTS_MS)
             if not args.skip_og:
                 og_image(browser, base)
             browser.close()

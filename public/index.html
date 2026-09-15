@@ -130,6 +130,11 @@
   .end-card .replay:hover{color:#fff}
   .end-card .sig{padding-top:22px;text-align:center}
   .end-card .sig span{display:block;margin-top:12px;font-size:13px;color:#8E99A3}
+  /* scene labels */
+  .scene{position:absolute;left:0;right:0;z-index:16;padding:0 24px;text-align:center;
+    color:var(--mp-yellow);font-size:20px;font-weight:700;line-height:1.3;
+    opacity:0;transition:opacity .3s;pointer-events:none}
+  .scene.on{opacity:1}
   /* pause */
   .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
     background:rgba(0,0,0,.45);color:#fff;font-size:11px;line-height:1;align-items:center;justify-content:center}
@@ -168,6 +173,7 @@
 
   <div class="tip" id="tip" aria-hidden="true"></div>
   <div class="paused" id="pausedPill">Paused</div>
+  <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="pbtn" id="pauseBtn" aria-label="Pause">❚❚</button>
 
   <!-- TITLE CARDS -->
@@ -284,7 +290,7 @@
   function at(ms,fn){ const e={due:elapsed()+ms,fn,id:null}; arm(e,ms); timers.push(e); }
   function clearTimers(){ timers.forEach(e=>clearTimeout(e.id)); timers=[]; }
   function togglePause(){
-    if(!AUTO) return;
+    if(!AUTO || screens.end.classList.contains('on')) return;
     if(paused){ t0+=Date.now()-pausedAt; paused=false; $('pausedPill').classList.remove('on');
       timers.forEach(e=>arm(e,Math.max(0,e.due-elapsed())));
     } else { paused=true; pausedAt=Date.now(); timers.forEach(e=>clearTimeout(e.id));
@@ -328,6 +334,7 @@
     if(name==='job') syncJob();
     if(name==='worksheet') syncWs();
     if(name==='thread') $('threadBody').scrollTop=1e6;
+    $('pauseBtn').style.display = (name==='end') ? 'none' : '';
   }
   document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{ if(b.dataset.go==='job'&&screens.worksheet.classList.contains('on')) readWs(); go(b.dataset.go); }));
   $('threadBack').addEventListener('click',()=>go(state.threadFrom));
@@ -402,7 +409,7 @@ Update the job card before leaving.`;
   function msgDelay(kind){
     if(!AUTO) return kind==='start'?1500:3500;
     if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
-    return Math.max(700,32000-elapsed());                        // banner at 32.0 s
+    return Math.max(700,33000-elapsed());                        // banner at 33.0 s
   }
 
   function notify(title,body,onOpen){
@@ -438,7 +445,7 @@ Update the job card before leaving.`;
     clearTimers(); paused=false; $('pausedPill').classList.remove('on');
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
     $('threadBody').innerHTML=''; $('banner').classList.remove('on');
-    $('tip').classList.remove('on');
+    $('tip').classList.remove('on'); $('scene').classList.remove('on'); $('scene').textContent='';
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.rise,.fade3').forEach(e=>e.classList.remove('rise','fade3'));
     $('wrap-cause').classList.remove('ok');
@@ -475,6 +482,16 @@ Update the job card before leaving.`;
     at(t+350,()=>tip.classList.remove('on'));
   }
   const CAUSE_ADD = ' Swash plate scored, metal in return filter. Case drain 1.1 L/min at 2,000 rpm, spec 0.2.';
+  function scene(text,anchor,hold){   // one yellow line in the empty space under the content
+    const el=$('scene'), ph=$('phone').getBoundingClientRect(), a=anchor();
+    if(!a) return;
+    const r=a.getBoundingClientRect();
+    el.textContent=text;
+    el.style.top=Math.round(Math.min(r.bottom-ph.top+24, ph.height-110))+'px';
+    el.classList.add('on');
+    at(hold,()=>el.classList.remove('on'));
+  }
+
   function resolved(){              // the evidence is on the card, so the last text confirms it
     addMsg(DONE_MSG,'in',CLOCK.resolved);
     notify(H.feedback,'Evidence complete. Ready for the office.',()=>{state.threadFrom='jobs';go('thread');});
@@ -513,29 +530,29 @@ Update the job card before leaving.`;
 
   function play(){
     reset(); t0=Date.now();
-    go('c1');                                      //  0.0  opening card, 7.0
-    at(7000,()=>go('job'));                        //  7.0  job detail, 3.0
-    tapAt(10000,()=>$('startBtn'));                // 10.0  taps Start, 2.0
-    tapAt(14500,()=>$('banner'));                  // 12.0  banner 1, 2.5 -> tapped, text 1, 7.0
-    at(21500,()=>go('job'));                       // 21.5  cut back to the job, 1.5
-    tapAt(23000,()=>$('wsRow'));                   // 23.0  taps the worksheet row, 1.0
-    at(25000,fadeFill);                            // 25.0  seven fields rise, then still, 4.0
-    at(27800,()=>reveal($('saveBtn')));
-    tapAt(29000,()=>$('saveBtn'));                 // 29.0  taps Save...
-    at(29400,doComplete);                          //       ...which completes it, 3.0
-    tapAt(35500,()=>$('banner'));                  // 32.0  banner 2, 3.5 -> tapped, text 2, 10.0
-    at(45500,()=>{ state.fixed=true; go('worksheet');     // 45.5  the correction, 6.0 still
+    go('c1');                                      //  0.0  opening card, 8.0
+    at(8000,()=>{ go('job');                       //  8.0  job detail, 3.0
+      scene('Your job app, as usual',()=>$('startBtn'),2300); });   //      clear before the tap
+    tapAt(11000,()=>$('startBtn'));                // 11.0  taps Start, 2.0
+    tapAt(15500,()=>$('banner'));                  // 13.0  banner 1, 2.5 -> tapped, text 1, 7.0
+    at(15500,()=>scene('Text arrives instantly',()=>$('threadBody').querySelector('.msg'),3000));
+    at(22500,()=>go('job'));                       // 22.5  cut back to the job, 1.5
+    tapAt(24000,()=>$('wsRow'));                   // 24.0  taps the worksheet row, 1.0
+    at(26000,fadeFill);                            // 26.0  seven fields rise, then still, 4.0
+    at(28800,()=>reveal($('saveBtn')));
+    tapAt(30000,()=>$('saveBtn'));                 // 30.0  taps Save...
+    at(30400,doComplete);                          //       ...which completes it, 3.0
+    tapAt(36500,()=>$('banner'));                  // 33.0  banner 2, 3.5 -> tapped, text 2, 10.0
+    at(46500,()=>{ state.fixed=true; go('worksheet');     // 46.5  the correction, 6.0 still
       growCause(); centreCause(); });
-    at(45900,appendCause);
-    at(46900,()=>{ $('okLine').hidden=false; });
-    at(51500,()=>reveal($('saveBtn')));            // 51.5  taps Save, 1.5
-    tapAt(52300,()=>$('saveBtn'),true);
-    at(52700,()=>go('jobs'));
-    at(53000,resolved);                            // 53.0  banner 3, 2.0
-    tapAt(55000,()=>$('banner'));                  // 55.0  tapped, text 3, 5.0
-    at(60000,()=>go('end'));                       // 60.0  end card, 8.0
-    at(67500,()=>document.querySelector('.stage').classList.add('fade'));
-    at(68000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
+    at(46900,appendCause);
+    at(47900,()=>{ $('okLine').hidden=false; });
+    at(52500,()=>reveal($('saveBtn')));            // 52.5  taps Save, 1.5
+    tapAt(53300,()=>$('saveBtn'),true);
+    at(53700,()=>go('jobs'));
+    at(54000,resolved);                            // 54.0  banner 3, 2.0
+    tapAt(56000,()=>$('banner'));                  // 56.0  tapped, text 3, 5.0
+    at(61000,()=>go('end'));                       // 61.0  end card, held until Replay
   }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
