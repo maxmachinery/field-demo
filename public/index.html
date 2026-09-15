@@ -22,7 +22,7 @@
   .screen.on{display:flex}
   .statusbar{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:13px;font-weight:600;color:#fff;background:var(--chrome)}
   .statusbar.light{color:var(--ink);background:transparent}
-  .statusbar.app{position:relative;align-items:center;padding:0 16px;background:#FBFBFC;color:var(--ink);border-bottom:1px solid #E4E7EA}
+  .statusbar.app{position:relative;align-items:center;padding:0 16px;background:#FFF;color:var(--ink);border-bottom:1px solid #E4E7EA}
   .statusbar.app .logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:16px;width:auto;display:block}
   .topbar{height:52px;background:var(--chrome);color:#fff;display:flex;align-items:center;padding:0 12px;gap:10px;font-weight:600;font-size:16px}
   .topbar .back{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:20px}
@@ -214,14 +214,14 @@
 
   <!-- JOBS LIST -->
   <section class="screen on" id="s-jobs">
-    <div class="statusbar app"><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"></div>
+    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="48" height="16"></div>
     <div class="topbar"><span style="font-size:18px">☰</span><span>Jobs (3)</span></div>
     <div class="content" id="jobsList"></div>
   </section>
 
   <!-- JOB DETAIL -->
   <section class="screen" id="s-job">
-    <div class="statusbar app"><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"></div>
+    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="48" height="16"></div>
     <div class="topbar"><button class="back" data-go="jobs" aria-label="Back">‹</button><span id="jobTitle">Job 48213</span><span class="spacer"></span><button class="tick" id="tickBtn" aria-label="Complete job" title="Complete job">✓</button></div>
     <div class="content">
       <div class="machine">
@@ -244,7 +244,7 @@
 
   <!-- WORKSHEET -->
   <section class="screen" id="s-ws">
-    <div class="statusbar app"><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"></div>
+    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="48" height="16"></div>
     <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span id="wsTitle"></span></div>
     <div class="content" id="wsForm">
       <div class="q"><label>Hour meter reading<i>*</i></label><input id="q-hours" inputmode="numeric" placeholder="e.g. 1240"></div>
@@ -409,7 +409,7 @@ Update the job card before leaving.`;
   function msgDelay(kind){
     if(!AUTO) return kind==='start'?1500:3500;
     if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
-    return Math.max(700,34500-elapsed());                        // banner at 34.5 s
+    return Math.max(700,35000-elapsed());                        // banner at 35.0 s
   }
 
   function notify(title,body,onOpen){
@@ -533,28 +533,28 @@ Update the job card before leaving.`;
   function play(){
     reset(); t0=Date.now();
     go('c1');                                      //  0.0  opening card, 8.0
-    at(8000,()=>go('job'));                        //  8.0  job detail, 4.5
-    at(8400,()=>scene('Your job app, as usual',()=>$('startBtn'),3400));   // clear by 12.4
-    tapAt(12500,()=>$('startBtn'));                // 12.5  taps Start, 2.0
-    tapAt(17000,()=>$('banner'));                  // 14.5  banner 1, 2.5 -> tapped, text 1, 7.0
-    at(17400,()=>scene('Text arrives instantly',()=>$('threadBody').querySelector('.msg'),3000));
-    at(24000,()=>go('job'));                       // 24.0  cut back to the job, 1.5
-    tapAt(25500,()=>$('wsRow'));                   // 25.5  taps the worksheet row, 1.0
-    at(27500,fadeFill);                            // 27.5  seven fields rise, then still, 4.0
-    at(30300,()=>reveal($('saveBtn')));
-    tapAt(31500,()=>$('saveBtn'));                 // 31.5  taps Save...
-    at(31900,doComplete);                          //       ...which completes it, 3.0
-    tapAt(38000,()=>$('banner'));                  // 34.5  banner 2, 3.5 -> tapped, text 2, 10.0
-    at(48000,()=>{ state.fixed=true; go('worksheet');     // 48.0  the correction, 6.0 still
+    at(8000,()=>go('job'));                        //  8.0  job detail, 5.0
+    at(8400,()=>scene('Your job app, as usual',()=>$('startBtn'),3900));   // 4.5 s on screen, clear by 12.9
+    tapAt(13000,()=>$('startBtn'));                // 13.0  taps Start, 2.0
+    tapAt(17500,()=>$('banner'));                  // 15.0  banner 1, 2.5 -> tapped, text 1, 7.0
+    at(17900,()=>scene('Text arrives instantly',()=>$('threadBody').querySelector('.msg'),3000));
+    at(24500,()=>go('job'));                       // 24.5  cut back to the job, 1.5
+    tapAt(26000,()=>$('wsRow'));                   // 26.0  taps the worksheet row, 1.0
+    at(28000,fadeFill);                            // 28.0  seven fields rise, then still, 4.0
+    at(30800,()=>reveal($('saveBtn')));
+    tapAt(32000,()=>$('saveBtn'));                 // 32.0  taps Save...
+    at(32400,doComplete);                          //       ...which completes it, 3.0
+    tapAt(38500,()=>$('banner'));                  // 35.0  banner 2, 3.5 -> tapped, text 2, 10.0
+    at(48500,()=>{ state.fixed=true; go('worksheet');     // 48.5  the correction, 6.0 still
       growCause(); centreCause(); });
-    at(48400,appendCause);
-    at(49400,()=>{ $('okLine').hidden=false; });
-    at(54000,()=>reveal($('saveBtn')));            // 54.0  taps Save, 1.5
-    tapAt(54800,()=>$('saveBtn'),true);
-    at(55200,()=>go('jobs'));
-    at(55500,resolved);                            // 55.5  banner 3, 2.0
-    tapAt(57500,()=>$('banner'));                  // 57.5  tapped, text 3, 5.0
-    at(62500,()=>go('end'));                       // 62.5  end card, held until Replay
+    at(48900,appendCause);
+    at(49900,()=>{ $('okLine').hidden=false; });
+    at(54500,()=>reveal($('saveBtn')));            // 54.5  taps Save, 1.5
+    tapAt(55300,()=>$('saveBtn'),true);
+    at(55700,()=>go('jobs'));
+    at(56000,resolved);                            // 56.0  banner 3, 2.0
+    tapAt(58000,()=>$('banner'));                  // 58.0  tapped, text 3, 5.0
+    at(63000,()=>go('end'));                       // 63.0  end card, held until Replay
   }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
