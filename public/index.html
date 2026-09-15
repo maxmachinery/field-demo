@@ -133,8 +133,8 @@
   /* scene labels */
   .scene{position:absolute;left:0;right:0;z-index:16;padding:0 24px;text-align:center;
     color:var(--mp-yellow);font-size:20px;font-weight:700;line-height:1.3;
-    opacity:0;transition:opacity .3s;pointer-events:none}
-  .scene.on{opacity:1}
+    opacity:0;transition:opacity .6s linear;pointer-events:none}   /* fade out */
+  .scene.on{opacity:1;transition:opacity 1s linear}                /* fade in */
   /* pause */
   .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
     background:rgba(0,0,0,.45);color:#fff;font-size:11px;line-height:1;align-items:center;justify-content:center}
@@ -181,7 +181,7 @@
     <div class="tc">
       <img class="cardlogo" src="logo.png" alt="Machinery Pilot" width="184" height="32">
       <div class="tctext">
-        <p>Catch missing warranty evidence before the engineer leaves the machine.</p>
+        <p>Catch missing evidence before the engineer leaves the machine.</p>
         <p>Machinery Pilot checks the job card and texts mechanics what's missing.</p>
         <p>Works with your existing dealer or job management system.</p>
       </div>
@@ -409,7 +409,7 @@ Update the job card before leaving.`;
   function msgDelay(kind){
     if(!AUTO) return kind==='start'?1500:3500;
     if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
-    return Math.max(700,33000-elapsed());                        // banner at 33.0 s
+    return Math.max(700,34500-elapsed());                        // banner at 34.5 s
   }
 
   function notify(title,body,onOpen){
@@ -486,9 +486,11 @@ Update the job card before leaving.`;
     const el=$('scene'), ph=$('phone').getBoundingClientRect(), a=anchor();
     if(!a) return;
     const r=a.getBoundingClientRect();
+    el.classList.remove('on');
     el.textContent=text;
     el.style.top=Math.round(Math.min(r.bottom-ph.top+24, ph.height-110))+'px';
-    el.classList.add('on');
+    void el.offsetHeight;             // flush layout at opacity 0, or Safari skips the fade
+    requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('on')));
     at(hold,()=>el.classList.remove('on'));
   }
 
@@ -531,28 +533,28 @@ Update the job card before leaving.`;
   function play(){
     reset(); t0=Date.now();
     go('c1');                                      //  0.0  opening card, 8.0
-    at(8000,()=>{ go('job');                       //  8.0  job detail, 3.0
-      scene('Your job app, as usual',()=>$('startBtn'),2300); });   //      clear before the tap
-    tapAt(11000,()=>$('startBtn'));                // 11.0  taps Start, 2.0
-    tapAt(15500,()=>$('banner'));                  // 13.0  banner 1, 2.5 -> tapped, text 1, 7.0
-    at(15500,()=>scene('Text arrives instantly',()=>$('threadBody').querySelector('.msg'),3000));
-    at(22500,()=>go('job'));                       // 22.5  cut back to the job, 1.5
-    tapAt(24000,()=>$('wsRow'));                   // 24.0  taps the worksheet row, 1.0
-    at(26000,fadeFill);                            // 26.0  seven fields rise, then still, 4.0
-    at(28800,()=>reveal($('saveBtn')));
-    tapAt(30000,()=>$('saveBtn'));                 // 30.0  taps Save...
-    at(30400,doComplete);                          //       ...which completes it, 3.0
-    tapAt(36500,()=>$('banner'));                  // 33.0  banner 2, 3.5 -> tapped, text 2, 10.0
-    at(46500,()=>{ state.fixed=true; go('worksheet');     // 46.5  the correction, 6.0 still
+    at(8000,()=>go('job'));                        //  8.0  job detail, 4.5
+    at(8400,()=>scene('Your job app, as usual',()=>$('startBtn'),3400));   // clear by 12.4
+    tapAt(12500,()=>$('startBtn'));                // 12.5  taps Start, 2.0
+    tapAt(17000,()=>$('banner'));                  // 14.5  banner 1, 2.5 -> tapped, text 1, 7.0
+    at(17400,()=>scene('Text arrives instantly',()=>$('threadBody').querySelector('.msg'),3000));
+    at(24000,()=>go('job'));                       // 24.0  cut back to the job, 1.5
+    tapAt(25500,()=>$('wsRow'));                   // 25.5  taps the worksheet row, 1.0
+    at(27500,fadeFill);                            // 27.5  seven fields rise, then still, 4.0
+    at(30300,()=>reveal($('saveBtn')));
+    tapAt(31500,()=>$('saveBtn'));                 // 31.5  taps Save...
+    at(31900,doComplete);                          //       ...which completes it, 3.0
+    tapAt(38000,()=>$('banner'));                  // 34.5  banner 2, 3.5 -> tapped, text 2, 10.0
+    at(48000,()=>{ state.fixed=true; go('worksheet');     // 48.0  the correction, 6.0 still
       growCause(); centreCause(); });
-    at(46900,appendCause);
-    at(47900,()=>{ $('okLine').hidden=false; });
-    at(52500,()=>reveal($('saveBtn')));            // 52.5  taps Save, 1.5
-    tapAt(53300,()=>$('saveBtn'),true);
-    at(53700,()=>go('jobs'));
-    at(54000,resolved);                            // 54.0  banner 3, 2.0
-    tapAt(56000,()=>$('banner'));                  // 56.0  tapped, text 3, 5.0
-    at(61000,()=>go('end'));                       // 61.0  end card, held until Replay
+    at(48400,appendCause);
+    at(49400,()=>{ $('okLine').hidden=false; });
+    at(54000,()=>reveal($('saveBtn')));            // 54.0  taps Save, 1.5
+    tapAt(54800,()=>$('saveBtn'),true);
+    at(55200,()=>go('jobs'));
+    at(55500,resolved);                            // 55.5  banner 3, 2.0
+    tapAt(57500,()=>$('banner'));                  // 57.5  tapped, text 3, 5.0
+    at(62500,()=>go('end'));                       // 62.5  end card, held until Replay
   }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }

@@ -5,9 +5,9 @@
   python3 tools/record.py --skip-og  # videos only
 
 Outputs (video/ is gitignored):
-  video/raw/desktop.webm      1280x720, one full 73 s run
-  video/raw/mobile.webm       390x844,  one full 73 s run
-  video/shots/t{4,18,28,41,49,58,66}.png frames
+  video/raw/desktop.webm      1280x720, one full 74.5 s run
+  video/raw/mobile.webm       390x844,  one full 74.5 s run
+  video/shots/t{4,19,29,42,50,59,67}.png frames
   public/og.png               1200x630 share image, the corrected Cause
 Then run tools/make-video.sh to produce the mp4s and the gif.
 """
@@ -26,9 +26,9 @@ from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 VIDEO = ROOT / "video"
-LOOP_MS = 73_000          # 69 s run, plus 4 s holding on the end card
-SHOTS_MS = (4_000, 18_000, 28_000, 41_000, 49_000, 58_000, 66_000)
-OG_MS = 49_000            # the corrected Cause
+LOOP_MS = 74_500          # 70.5 s run, plus 4 s holding on the end card
+SHOTS_MS = (4_000, 19_500, 29_500, 42_500, 50_500, 59_500, 67_500)
+OG_MS = 50_500            # the corrected Cause
 
 
 def serve(directory):
