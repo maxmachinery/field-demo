@@ -9,7 +9,7 @@
     --chrome:#2E3942; --chrome-2:#3B4954; --ink:#1B2229; --ink-2:#5B6770; --line:#DCE1E5;
     --page:#F3F4F5; --white:#fff; --ok:#2E8B57; --warn:#C8811A; --bad:#B23A3A;
     --mp:#1F5F8B; --mp-soft:#E7F0F7; --bubble-in:#E9E9EB; --thread:#F2F4F6;
-    --accent:#F2B705;
+    --accent:#F2B705; --mp-yellow:#E9C35A;   /* most saturated yellow in logo.png */
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -115,20 +115,18 @@
   .title-card{background:#101014}
   .title-card .tc{flex:1;display:flex;flex-direction:column;padding:24px 24px 26px;text-align:center}
   .cardlogo{height:32px;width:auto;display:block;margin:0 auto;flex:none}
-  .title-card .tctext{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px}
-  .title-card p{font-size:18px;line-height:1.45;color:#fff}
-  .title-card p.lead{font-size:20px;font-weight:600}
+  .title-card .tctext{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px}
+  .title-card p,.end-card .ectext p{font-size:19px;font-weight:600;line-height:1.45;color:#fff}
   .title-card .brand{font-size:15px;font-weight:600;color:#4A8FD1;margin-bottom:2px}
   /* end card */
   .end-card{background:#101014}
   .end-card .ec{flex:1;display:flex;flex-direction:column;padding:24px 22px 26px}
-  .end-card .hl{font-size:20px;font-weight:600;line-height:1.35;color:#fff;text-align:center}
-  .end-card .ectext{flex:1;display:flex;align-items:center;justify-content:center}
+  .end-card .ectext{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:center}
   .end-card .cta{display:flex;align-items:center;justify-content:center;height:48px;border-radius:10px;
-    background:#4A8FD1;color:#fff;font-size:16px;font-weight:600;text-decoration:none}
-  .end-card .cta:hover{background:#5C9BD8}
+    background:var(--mp-yellow);color:#101014;font-size:16px;font-weight:600;text-decoration:none}
+  .end-card .cta:hover{background:#F0CE6B}
   .end-card .proof{margin-top:16px;font-size:14px;line-height:1.4;color:#8E99A3;text-align:center}
-  .end-card .replay{margin-top:14px;font-size:14px;color:#8E99A3;text-decoration:underline;background:none}
+  .end-card .replay{margin-top:14px;font-size:14px;color:var(--mp-yellow);text-decoration:underline;background:none}
   .end-card .replay:hover{color:#fff}
   .end-card .sig{padding-top:22px;text-align:center}
   .end-card .sig span{display:block;margin-top:12px;font-size:13px;color:#8E99A3}
@@ -177,8 +175,9 @@
     <div class="tc">
       <img class="cardlogo" src="logo.png" alt="Machinery Pilot" width="184" height="32">
       <div class="tctext">
-        <p class="lead">Machinery Pilot checks warranty job cards and texts engineers what evidence is missing before they leave the machine.</p>
-        <p>It works with your existing job system.</p>
+        <p>Catch missing warranty evidence before the engineer leaves the machine.</p>
+        <p>Machinery Pilot checks the job card and texts mechanics what's missing.</p>
+        <p>Works with your existing dealer or job management system.</p>
       </div>
     </div>
   </section>
@@ -188,10 +187,11 @@
     <div class="ec">
       <img class="cardlogo" src="logo.png" alt="Machinery Pilot" width="184" height="32">
       <div class="ectext">
-        <p class="hl">Complete evidence before the engineer leaves the machine – without changing your DMS.</p>
+        <p>Ensure complete evidence before the engineer leaves the machine.</p>
+        <p>Without changing any system or how your teams work.</p>
       </div>
       <p class="proof" id="proofPoint" hidden></p>
-      <a class="cta" href="https://calendly.com/max-machinerypilot/25-minutes-with-max" target="_blank" rel="noopener">Discuss a pilot</a>
+      <a class="cta" href="https://calendly.com/max-machinerypilot/25-minutes-with-max" target="_blank" rel="noopener">Book a meeting</a>
       <div class="sig"><button class="replay" id="replayBtn">Replay</button><span>machinerypilot.com</span></div>
     </div>
   </section>
