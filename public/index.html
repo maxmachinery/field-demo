@@ -143,9 +143,10 @@
   .nav{display:none;position:absolute;z-index:70;top:50%;transform:translateY(-50%);
        border-radius:50%;align-items:center;justify-content:center;line-height:1}
   body.view .nav:not([hidden]){display:flex}
-  #nextBtn{left:calc(50% + 219px);width:48px;height:48px;background:var(--mp-yellow);color:#101014;
-    font-size:22px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3)}
   #backBtn{right:calc(50% + 219px);width:32px;height:32px;background:rgba(48,56,64,.55);color:#fff;font-size:18px}
+  .cardbtn{display:none;align-self:center;margin-top:26px;height:44px;padding:0 34px;border-radius:10px;
+    background:var(--mp-yellow);color:#101014;font-size:16px;font-weight:600}
+  body.view .cardbtn{display:block}
   /* the pulsing tap marker */
   .ring{display:none;position:absolute;z-index:75;width:56px;height:56px;border-radius:50%;
     border:3px solid var(--mp-yellow);background:transparent;pointer-events:none}
@@ -176,9 +177,8 @@
   @media (max-width:430px){
     .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
     body.view .nav{top:auto;bottom:16px;transform:none}
-    body.view #nextBtn{left:auto;right:16px}
     body.view #backBtn{right:auto;left:16px}
-    body.view .composer{padding-right:74px}
+    body.view .composer{padding-left:58px}
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
     .statusbar{display:none}
     .statusbar.app{display:flex;height:40px}
@@ -209,6 +209,7 @@
         <p>Catch missing evidence before the engineer leaves the machine.</p>
         <p>Machinery Pilot checks the job card and texts mechanics what's missing.</p>
         <p>Works with your existing dealer or job management system.</p>
+        <button class="cardbtn" id="cardStart">Start</button>
       </div>
     </div>
   </section>
@@ -300,7 +301,6 @@
 </div>
 
 <button class="nav" id="backBtn" aria-label="Previous" hidden>‹</button>
-<button class="nav" id="nextBtn" aria-label="Next">→</button>
 <div class="ring" id="ring" aria-hidden="true"></div>
 </div>
 </div>
@@ -316,7 +316,7 @@
   const elapsed = () => Date.now()-t0;
   const state = {started:false, travel:false, fixed:false, evidence:false, threadFrom:'job',
     hours:'', hourPhoto:false, partPhoto:false, complaint:'', cause:'', correction:'', op:null, banner:null};
-  let timers=[], paused=false, pausedAt=0;
+  let timers=[], paused=false, pausedAt=0, curView=0;
   function arm(e,ms){ e.id=setTimeout(()=>{ const i=timers.indexOf(e); if(i>=0) timers.splice(i,1); e.fn(); },ms); }
   function at(ms,fn){ const e={due:elapsed()+ms,fn,id:null}; arm(e,ms); timers.push(e); }
   function clearTimers(){ timers.forEach(e=>clearTimeout(e.id)); timers=[]; }
@@ -405,8 +405,12 @@
     $('startBtn').hidden=state.started; $('travelBtn').hidden=!state.started;
     $('travelBtn').disabled=state.travel;
     $('travelLine').hidden=!state.travel;
-    if(state.travel){ $('travelBtn').textContent='Travel started '+state.doneAt; $('travelBtn').style.opacity='1'; $('travelBtn').style.background='var(--chrome-2)'; }
-    else { $('travelBtn').textContent='Add travel'; $('travelBtn').style.background=''; }
+    const ready = !VIEW || curView===7;   // click-through: travel opens once the card is complete
+    if(state.travel){ $('travelBtn').textContent='Travel started '+state.doneAt; $('travelBtn').disabled=true;
+      $('travelBtn').style.opacity='1'; $('travelBtn').style.background='var(--chrome-2)'; }
+    else if(!ready){ $('travelBtn').textContent='Job started '+CLOCK.started; $('travelBtn').disabled=true;
+      $('travelBtn').style.opacity='1'; $('travelBtn').style.background='var(--chrome-2)'; }
+    else { $('travelBtn').textContent='Add travel'; $('travelBtn').disabled=false; $('travelBtn').style.background=''; }
   }
 
   const FILL = {hours:'1240',
@@ -599,29 +603,44 @@ Update the job card before leaving.`;
     function(done){ go('end'); at(500,done); }       // stop 6 -> 7
   ];
 
-  // ---- default mode: a clickable prototype, one action per view
-  const VIEW_SCREEN = {1:'c1',2:'job',3:'job',4:'thread',5:'worksheet',6:'job',
-                       7:'job',8:'thread',9:'worksheet',10:'jobs',11:'thread',12:'end'};
+  // ---- default mode: a clickable prototype, one live control per view
+  const VIEW_SCREEN = {1:'c1',2:'job',3:'job',4:'thread',5:'job',6:'worksheet',7:'job',
+                       8:'job',9:'thread',10:'job',11:'worksheet',12:'jobs',13:'thread',14:'end'};
   const VIEW_BANNER = {
     3:()=>notify(H.brief,`Develon's warranty team requires 3 items on this job.`,()=>{}),
-    7:()=>notify(H.feedback,'Two more bits before the claim goes off.',()=>{}),
-    10:()=>notify(H.feedback,'Evidence complete. Ready for the office.',()=>{})
+    8:()=>notify(H.feedback,'Two more bits before the claim goes off.',()=>{}),
+    12:()=>notify(H.feedback,'Evidence complete. Ready for the office.',()=>{})
   };
-  const VIEW_TARGET = {                          // the one live control on that view
-    2:()=>$('startBtn'), 3:()=>$('banner'), 6:()=>$('travelBtn'), 7:()=>$('banner'), 10:()=>$('banner')
+  const chev = ()=>$('wsRow').querySelector('.chev');
+  const VIEW_TARGET = {                          // {el: the live control, ring: what the ring sits on}
+    1:{el:()=>$('cardStart')},
+    2:{el:()=>$('startBtn')},
+    3:{el:()=>$('banner')},
+    4:{el:()=>$('threadBack'), size:48},
+    5:{el:()=>$('wsRow'), ring:chev, size:40},
+    6:{el:()=>$('saveBtn')},
+    7:{el:()=>$('travelBtn')},
+    8:{el:()=>$('banner')},
+    9:{el:()=>$('threadBack'), size:48},
+    10:{el:()=>$('wsRow'), ring:chev, size:40},
+    11:{el:()=>$('saveBtn')},
+    12:{el:()=>$('banner')},
+    13:{el:()=>$('threadBack'), size:48}
   };
-  const VCAP = {5:'The engineer completes the repair and fills in the job card.',
-                9:'The engineer adds the missing details.'};
-  const VIEWS=12, SLIDE=450;
-  let view=1, busy=false, swiped=false;
+  const VCAP = {6:'The engineer completes the repair and fills in the job card.',
+                11:'The engineer adds the missing details.'};
+  const VIEWS=14, SLIDE=450;
+  let busy=false, swiped=false;
 
-  function ring(el){
+  function ring(el,size){
     const r=$('ring'), st=document.querySelector('.stage');
     if(!el){ r.classList.remove('on'); return; }
     const a=el.getBoundingClientRect(), b=st.getBoundingClientRect();
     if(!a.width){ r.classList.remove('on'); return; }
-    r.style.left=Math.round(a.left-b.left+a.width/2-28)+'px';
-    r.style.top=Math.round(a.top-b.top+a.height/2-28)+'px';
+    const d=size||56;
+    r.style.width=r.style.height=d+'px';
+    r.style.left=Math.round(a.left-b.left+a.width/2-d/2)+'px';
+    r.style.top=Math.round(a.top-b.top+a.height/2-d/2)+'px';
     r.classList.add('on');
   }
   function caption(text){
@@ -647,12 +666,12 @@ Update the job card before leaving.`;
   }
 
   const VIEW_ANIM = {
-    5:function(done){               // fields land one by one while the card scrolls to Cause
+    6:function(done){               // fields land one by one while the card scrolls to Cause
       fadeFill();
       at(1200,()=>glide($('wsForm'),causeTop(),1200));
       at(2900,done);
     },
-    9:function(done){               // scroll to Cause, then the missing detail goes on
+    11:function(done){              // scroll to Cause, then the missing detail goes on
       glide($('wsForm'),causeTop(),1200);
       at(1400,()=>{ appendCause(); at(120,()=>glide($('wsForm'),causeTop(),250)); });
       at(2600,()=>{ $('okLine').hidden=false; done(); });
@@ -662,46 +681,40 @@ Update the job card before leaving.`;
   function buildView(n,anim){       // rebuilt from scratch, so nothing leaks between views
     reset(); caption(VCAP[n]||null);
     if(n>=3){ state.started=true; state.startAt=CLOCK.started; addMsg(START_MSG,'in',CLOCK.started); }
-    if(n>=5 && !(anim&&n===5)) fillWorksheet();
-    if(n>=7){ state.travel=true; state.doneAt=CLOCK.done; }
-    if(n>=7) addMsg(GAP_MSG,'in',CLOCK.done,'big');
-    if(n>=9 && !(anim&&n===9)){ state.fixed=true; state.cause=state.cause+CAUSE_ADD; }
-    if(n>=10) addMsg(DONE_MSG,'in',CLOCK.resolved);
-    if(n>=11) state.evidence=true;
+    if(n>=6 && !(anim&&n===6)) fillWorksheet();
+    if(n>=8){ state.travel=true; state.doneAt=CLOCK.done; addMsg(GAP_MSG,'in',CLOCK.done,'big'); }
+    if(n>=11 && !(anim&&n===11)){ state.fixed=true; state.cause=state.cause+CAUSE_ADD; }
+    if(n>=12) addMsg(DONE_MSG,'in',CLOCK.resolved);
+    if(n>=13) state.evidence=true;
     syncWs(); syncJob();
     go(VIEW_SCREEN[n]);
-    if(n===3){ const b=$('travelBtn');           // job started, nothing to add yet
-      b.hidden=false; b.disabled=true; b.textContent='Job started '+CLOCK.started;
-      b.style.background='var(--chrome-2)'; b.style.opacity='1'; }
-    if(n===5 && !anim) $('wsForm').scrollTop=causeTop();
-    if(n===9){ growCause(); $('wrap-cause').classList.toggle('ok',!anim);
+    if(n===6 && !anim) $('wsForm').scrollTop=causeTop();
+    if(n===11){ growCause(); $('wrap-cause').classList.toggle('ok',!anim);
       $('okLine').hidden=anim; if(!anim) $('wsForm').scrollTop=causeTop(); }
   }
 
-  function navOff(){ $('nextBtn').hidden=true; $('backBtn').hidden=(view===1); ring(null); }
+  function navOff(){ $('backBtn').hidden=(curView===1); ring(null); }
   function navOn(){
-    const t=VIEW_TARGET[view];
-    $('nextBtn').hidden = !!t || view===VIEWS;
-    $('backBtn').hidden = (view===1);
-    ring(t ? t() : (view===VIEWS ? null : $('nextBtn')));
+    const t=VIEW_TARGET[curView];
+    $('backBtn').hidden = (curView===1);
+    ring(t ? (t.ring||t.el)() : null, t && t.size);
   }
   function showView(n,anim){
-    view=n; busy=false; buildView(n,anim);
+    curView=n; busy=false; buildView(n,anim);
     const bn=VIEW_BANNER[n], an=VIEW_ANIM[n];
     if(bn && anim){ busy=true; navOff(); bn(); at(SLIDE,()=>{ busy=false; navOn(); }); }
     else if(bn){ const b=$('banner'); b.style.transition='none'; bn(); void b.offsetHeight; b.style.transition=''; navOn(); }
     else if(an && anim){ busy=true; navOff(); an(()=>{ busy=false; navOn(); }); }
     else navOn();
   }
-  function next(){ if(!VIEW||busy||view>=VIEWS) return; showView(view+1,true); }
-  function prev(){ if(!VIEW||busy||view<=1) return; showView(view-1,false); }
+  function next(){ if(!VIEW||busy||curView>=VIEWS) return; showView(curView+1,true); }
+  function prev(){ if(!VIEW||busy||curView<=1) return; showView(curView-1,false); }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
   $('replayBtn').addEventListener('click',()=>{
     if(AUTO) play();
     else if(VIEW) showView(1,false);
   });
-  $('nextBtn').addEventListener('click',e=>{ e.stopPropagation(); next(); });
   $('backBtn').addEventListener('click',e=>{ e.stopPropagation(); prev(); });
   $('pauseBtn').addEventListener('click',togglePause);
   addEventListener('keydown',e=>{
@@ -715,8 +728,8 @@ Update the job card before leaving.`;
     if(e.target.closest('.cta,#replayBtn')) return;   // the end card's own buttons
     e.stopPropagation(); e.preventDefault();
     if(busy||swiped) return;
-    const t=VIEW_TARGET[view]; if(!t) return;
-    const el=t(); if(el && (e.target===el || el.contains(e.target))) next();
+    const t=VIEW_TARGET[curView]; if(!t) return;
+    const el=t.el(); if(el && (e.target===el || el.contains(e.target))) next();
   },true);
   (function(){
     let sx=null;
