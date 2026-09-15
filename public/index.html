@@ -17,7 +17,6 @@
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .stage{position:relative;overflow:hidden;transition:opacity .5s;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px}
   .stage.fade{opacity:0}
-  .auto .phone{height:min(812px,calc(100dvh - 104px))}
   .phone{position:relative;width:390px;height:min(812px,calc(100dvh - 36px));background:var(--page);border-radius:38px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 10px #0B0D10,0 0 0 12px #2A2F35}
   .screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
   .screen.on{display:flex}
@@ -83,7 +82,6 @@
   .banner .bt{font-size:16px;font-weight:700;line-height:1.25;color:var(--ink);margin-top:3px}
   .banner .bd{font-size:16px;font-weight:400;line-height:1.3;color:var(--ink);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   /* thread */
-  .thread .statusbar{background:#FCFCFD;color:var(--ink)}
   .thread .topbar{height:auto;padding:6px 12px 10px;justify-content:center;position:relative;
     background:#FCFCFD;color:var(--ink);border-bottom:1px solid #DEDEE2}
   .thread .topbar .back{position:absolute;left:8px;top:50%;transform:translateY(-50%);
@@ -114,17 +112,18 @@
     opacity:0;transition:opacity .2s}
   .paused.on{opacity:1}
   /* title cards (own names: .card/.row/.h belong to the job screens) */
-  .title-card{background:#15191D}
-  .title-card .tc{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:26px 24px;text-align:center}
+  .title-card{background:#101014}
+  .title-card .tc{flex:1;display:flex;flex-direction:column;padding:24px 24px 26px;text-align:center}
+  .cardlogo{height:32px;width:auto;display:block;margin:0 auto;flex:none}
+  .title-card .tctext{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px}
   .title-card p{font-size:18px;line-height:1.45;color:#fff}
   .title-card p.lead{font-size:20px;font-weight:600}
   .title-card .brand{font-size:15px;font-weight:600;color:#4A8FD1;margin-bottom:2px}
   /* end card */
-  .end-card{background:#15191D}
-  .end-card .ec{flex:1;display:flex;flex-direction:column;padding:26px 22px 26px}
+  .end-card{background:#101014}
+  .end-card .ec{flex:1;display:flex;flex-direction:column;padding:24px 22px 26px}
   .end-card .hl{font-size:20px;font-weight:600;line-height:1.35;color:#fff;text-align:center}
-  .end-card .lines{flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center}
-  .end-card .lines p{font-size:16px;line-height:1.6;color:#fff}
+  .end-card .ectext{flex:1;display:flex;align-items:center;justify-content:center}
   .end-card .cta{display:flex;align-items:center;justify-content:center;height:48px;border-radius:10px;
     background:#4A8FD1;color:#fff;font-size:16px;font-weight:600;text-decoration:none}
   .end-card .cta:hover{background:#5C9BD8}
@@ -133,14 +132,7 @@
   .end-card .replay:hover{color:#fff}
   .end-card .sig{padding-top:22px;text-align:center}
   .end-card .sig span{display:block;margin-top:12px;font-size:13px;color:#8E99A3}
-  /* stage tabs */
-  .tabs{display:none;width:390px;max-width:100%;align-items:stretch}
-  .auto .tabs{display:flex}
-  .tabs b{flex:1;padding:7px 4px 8px;text-align:center;font-size:11px;font-weight:500;line-height:1.25;
-    color:#66727C;border-bottom:2px solid transparent;transition:color .3s,border-color .3s}
-  .tabs b.on{color:#fff;border-bottom-color:#fff}
-  /* loop progress + pause */
-  .pbar{position:absolute;top:0;left:0;height:2px;width:0;background:#4A8FD1;z-index:70;pointer-events:none}
+  /* pause */
   .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
     background:rgba(0,0,0,.45);color:#fff;font-size:11px;line-height:1;align-items:center;justify-content:center}
   .auto .pbtn{display:flex}
@@ -159,10 +151,8 @@
   @keyframes cut{from{opacity:0}}
   @keyframes ping{50%{transform:scale(.82);background:rgba(255,255,255,.45)}}
   @media (max-width:430px){
-    .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden;justify-content:flex-start}
+    .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
-    .auto .phone{height:calc(100dvh - 44px)}
-    .auto .tabs{position:fixed;left:0;right:0;bottom:0;width:100%;height:44px;background:#0F1317;border-top:1px solid #232A31}
     .statusbar{display:none}
     .statusbar.app{display:flex;height:34px}
     .banner{top:10px}
@@ -180,25 +170,25 @@
 
   <div class="tip" id="tip" aria-hidden="true"></div>
   <div class="paused" id="pausedPill">Paused</div>
-  <div class="pbar" id="pbar" aria-hidden="true"></div>
   <button class="pbtn" id="pauseBtn" aria-label="Pause">❚❚</button>
 
   <!-- TITLE CARDS -->
   <section class="screen title-card" id="s-c1">
     <div class="tc">
-      <p class="lead">Machinery Pilot works with your existing job system.</p>
-      <p>It checks warranty job cards and texts engineers what evidence is missing before they leave the machine.</p>
+      <img class="cardlogo" src="logo.png" alt="Machinery Pilot" width="184" height="32">
+      <div class="tctext">
+        <p class="lead">Machinery Pilot checks warranty job cards and texts engineers what evidence is missing before they leave the machine.</p>
+        <p>It works with your existing job system.</p>
+      </div>
     </div>
   </section>
 
   <!-- END CARD -->
   <section class="screen end-card" id="s-end">
     <div class="ec">
-      <p class="hl">Warranty evidence complete before the engineer leaves.</p>
-      <div class="lines">
-        <p>Your existing job system.</p>
-        <p>Machinery Pilot checks.</p>
-        <p>Engineers get clear prompts by text.</p>
+      <img class="cardlogo" src="logo.png" alt="Machinery Pilot" width="184" height="32">
+      <div class="ectext">
+        <p class="hl">Complete evidence before the engineer leaves the machine – without changing your DMS.</p>
       </div>
       <p class="proof" id="proofPoint" hidden></p>
       <a class="cta" href="https://calendly.com/max-machinerypilot/25-minutes-with-max" target="_blank" rel="noopener">Discuss a pilot</a>
@@ -218,18 +208,18 @@
 
   <!-- JOBS LIST -->
   <section class="screen on" id="s-jobs">
-    <div class="statusbar app"><span class="clk">13:58</span><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"><span>▲ ▲ 74%</span></div>
+    <div class="statusbar app"><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"></div>
     <div class="topbar"><span style="font-size:18px">☰</span><span>Jobs (3)</span></div>
     <div class="content" id="jobsList"></div>
   </section>
 
   <!-- JOB DETAIL -->
   <section class="screen" id="s-job">
-    <div class="statusbar app"><span class="clk">13:58</span><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"><span>▲ ▲ 74%</span></div>
-    <div class="topbar"><button class="back" data-go="jobs" aria-label="Back">‹</button><span>Job 48213</span><span class="spacer"></span><button class="tick" id="tickBtn" aria-label="Complete job" title="Complete job">✓</button></div>
+    <div class="statusbar app"><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"></div>
+    <div class="topbar"><button class="back" data-go="jobs" aria-label="Back">‹</button><span id="jobTitle">Job 48213</span><span class="spacer"></span><button class="tick" id="tickBtn" aria-label="Complete job" title="Complete job">✓</button></div>
     <div class="content">
       <div class="machine">
-        <b>Develon DX300LC-7K</b>
+        <b id="machineName">Develon DX300LC-7K</b>
         <span>Serial DHKCEBBRTP0001417 · 1,240 h · Registered 14 Nov 2025 · Ashcroft Groundworks Ltd, NN15 5AB</span>
       </div>
       <div class="h">Reported fault</div>
@@ -248,7 +238,7 @@
 
   <!-- WORKSHEET -->
   <section class="screen" id="s-ws">
-    <div class="statusbar app"><span class="clk">13:58</span><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"><span>▲ ▲ 74%</span></div>
+    <div class="statusbar app"><img class="logo" src="jobwatch.png" alt="JobWatch" width="74" height="16"></div>
     <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span id="wsTitle"></span></div>
     <div class="content" id="wsForm">
       <div class="q"><label>Hour meter reading<i>*</i></label><input id="q-hours" inputmode="numeric" placeholder="e.g. 1240"></div>
@@ -264,7 +254,6 @@
 
   <!-- THREAD -->
   <section class="screen thread" id="s-thread">
-    <div class="statusbar"><span class="clk">13:58</span><span>▲ ▲ 74%</span></div>
     <div class="topbar">
       <button class="back" id="threadBack" aria-label="Back">‹</button>
       <div class="who">
@@ -278,9 +267,6 @@
 
 </div>
 
-<div class="tabs" id="tabs" aria-hidden="true">
-  <b>Your job app</b><b>Requirements by text</b><b>Fill the card</b><b>Feedback by text</b><b>Evidence complete</b>
-</div>
 </div>
 
 <script>
@@ -293,7 +279,6 @@
   const elapsed = () => Date.now()-t0;
   const state = {started:false, completed:false, fixed:false, threadFrom:'job',
     hours:'', hourPhoto:false, partPhoto:false, complaint:'', cause:'', correction:'', op:null, banner:null};
-  const LOOP=66000;
   let timers=[], paused=false, pausedAt=0;
   function arm(e,ms){ e.id=setTimeout(()=>{ const i=timers.indexOf(e); if(i>=0) timers.splice(i,1); e.fn(); },ms); }
   function at(ms,fn){ const e={due:elapsed()+ms,fn,id:null}; arm(e,ms); timers.push(e); }
@@ -309,12 +294,12 @@
   }
 
   const JOB='48213', MAKE='Develon', MODEL='DX300LC-7K';
-  const REF=`Job ${JOB} | ${MAKE} ${MODEL}`;
+  const REF=`Job ${JOB}`;
   const H={brief:`Warranty Briefing – ${REF}`, feedback:`Warranty Feedback – ${REF}`};
   $('wsTitle').textContent='Worksheet – Hydraulic breakdown';
-  const CLOCK={open:'13:58', started:'13:59', done:'14:31', resolved:'14:34'};
-  const CLKS=[...document.querySelectorAll('.clk')];
-  function setClock(t){ CLKS.forEach(e=>e.textContent=t); }
+  $('jobTitle').textContent='Job '+JOB;
+  $('machineName').textContent=MAKE+' '+MODEL;
+  const CLOCK={open:'13:58', started:'13:59', done:'14:31', resolved:'14:34'};   // message stamps
   const PROOF_POINT='';            // one line of proof above the button; empty hides it
 
   const JOBS = [
@@ -417,7 +402,7 @@ Update the job card before leaving.`;
   function msgDelay(kind){
     if(!AUTO) return kind==='start'?1500:3500;
     if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
-    return Math.max(700,30000-elapsed());                        // banner at 30.0 s
+    return Math.max(700,32000-elapsed());                        // banner at 32.0 s
   }
 
   function notify(title,body,onOpen){
@@ -429,7 +414,7 @@ Update the job card before leaving.`;
 
   // ---- flow
   $('startBtn').addEventListener('click',()=>{
-    state.started=true; syncJob(); state.startAt=CLOCK.started; setClock(CLOCK.started);
+    state.started=true; syncJob(); state.startAt=CLOCK.started;
     if(!AUTO) at(600,fillWorksheet);   // manual: the card arrives filled, so Complete is always reachable
     timers.push(setTimeout(()=>{
       addMsg(START_MSG,'in',CLOCK.started);
@@ -442,7 +427,7 @@ Update the job card before leaving.`;
 
   function doComplete(){
     readWsIfOn(); if(wsCount()<7) return;
-    state.completed=true; state.doneAt=CLOCK.done; setClock(CLOCK.done); go('jobs');
+    state.completed=true; state.doneAt=CLOCK.done; go('jobs');
     timers.push(setTimeout(()=>{
       addMsg(GAP_MSG,'in',CLOCK.done,'big');
       notify(H.feedback,'Two more bits to add before the claim goes off.',()=>{state.threadFrom='jobs';go('thread');});
@@ -453,10 +438,10 @@ Update the job card before leaving.`;
     clearTimers(); paused=false; $('pausedPill').classList.remove('on');
     Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
     $('threadBody').innerHTML=''; $('banner').classList.remove('on');
-    $('tip').classList.remove('on'); setClock(CLOCK.open);
+    $('tip').classList.remove('on');
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.rise,.fade3').forEach(e=>e.classList.remove('rise','fade3'));
-    $('wrap-cause').classList.remove('ok'); TABS.forEach(b=>b.classList.remove('on'));
+    $('wrap-cause').classList.remove('ok');
     $('okLine').hidden=true; $('q-cause').classList.remove('grown'); $('q-cause').style.height='';
     syncWs(); go('jobs');
   }
@@ -490,11 +475,8 @@ Update the job card before leaving.`;
     at(t+350,()=>tip.classList.remove('on'));
   }
   const CAUSE_ADD = ' Swash plate scored, metal in return filter. Case drain 1.1 L/min at 2,000 rpm, spec 0.2.';
-  const TABS=[...document.querySelectorAll('.tabs b')];
-  function tab(i){ TABS.forEach((b,k)=>b.classList.toggle('on', i<0 || k===i)); }
-
   function resolved(){              // the evidence is on the card, so the last text confirms it
-    setClock(CLOCK.resolved); addMsg(DONE_MSG,'in',CLOCK.resolved);
+    addMsg(DONE_MSG,'in',CLOCK.resolved);
     notify(H.feedback,'Evidence complete. Ready for the office.',()=>{state.threadFrom='jobs';go('thread');});
   }
 
@@ -531,43 +513,36 @@ Update the job card before leaving.`;
 
   function play(){
     reset(); t0=Date.now();
-    go('c1');                                      //  0.0  opening card, 5.0
-    at(5000,()=>{ go('job'); tab(0); });           //  5.0  job detail, 3.0
-    tapAt(8000,()=>$('startBtn'));                 //  8.0  taps Start, 2.0
-    at(10000,()=>tab(1));
-    tapAt(12500,()=>$('banner'));                  // 10.0  banner 1, 2.5 -> tapped, text 1, 7.0
-    at(19500,()=>go('job'));                       // 19.5  cut back to the job, 1.5
-    tapAt(21000,()=>$('wsRow')); at(21000,()=>tab(2));    // 21.0  taps the worksheet row, 1.0
-    at(23000,fadeFill);                            // 23.0  seven fields rise, then still, 4.0
-    at(25800,()=>reveal($('saveBtn')));
-    tapAt(27000,()=>$('saveBtn'));                 // 27.0  taps Save...
-    at(27400,doComplete);                          //       ...which completes it, 3.0
-    at(30000,()=>tab(3));
-    tapAt(33500,()=>$('banner'));                  // 30.0  banner 2, 3.5 -> tapped, text 2, 10.0
-    at(43500,()=>{ state.fixed=true; go('worksheet');     // 43.5  the correction, 6.0 still
+    go('c1');                                      //  0.0  opening card, 7.0
+    at(7000,()=>go('job'));                        //  7.0  job detail, 3.0
+    tapAt(10000,()=>$('startBtn'));                // 10.0  taps Start, 2.0
+    tapAt(14500,()=>$('banner'));                  // 12.0  banner 1, 2.5 -> tapped, text 1, 7.0
+    at(21500,()=>go('job'));                       // 21.5  cut back to the job, 1.5
+    tapAt(23000,()=>$('wsRow'));                   // 23.0  taps the worksheet row, 1.0
+    at(25000,fadeFill);                            // 25.0  seven fields rise, then still, 4.0
+    at(27800,()=>reveal($('saveBtn')));
+    tapAt(29000,()=>$('saveBtn'));                 // 29.0  taps Save...
+    at(29400,doComplete);                          //       ...which completes it, 3.0
+    tapAt(35500,()=>$('banner'));                  // 32.0  banner 2, 3.5 -> tapped, text 2, 10.0
+    at(45500,()=>{ state.fixed=true; go('worksheet');     // 45.5  the correction, 6.0 still
       growCause(); centreCause(); });
-    at(43900,appendCause);
-    at(44900,()=>{ $('okLine').hidden=false; });
-    at(49500,()=>reveal($('saveBtn')));            // 49.5  taps Save, 1.5
-    tapAt(50300,()=>$('saveBtn'),true);
-    at(50700,()=>go('jobs'));
-    at(51000,()=>tab(4));
-    at(51000,resolved);                            // 51.0  banner 3, 2.0
-    tapAt(53000,()=>$('banner'));                  // 53.0  tapped, text 3, 5.0
-    at(58000,()=>go('end')); at(58000,()=>tab(-1));      // 58.0  end card, 8.0
-    at(65500,()=>document.querySelector('.stage').classList.add('fade'));
-    at(66000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
+    at(45900,appendCause);
+    at(46900,()=>{ $('okLine').hidden=false; });
+    at(51500,()=>reveal($('saveBtn')));            // 51.5  taps Save, 1.5
+    tapAt(52300,()=>$('saveBtn'),true);
+    at(52700,()=>go('jobs'));
+    at(53000,resolved);                            // 53.0  banner 3, 2.0
+    tapAt(55000,()=>$('banner'));                  // 55.0  tapped, text 3, 5.0
+    at(60000,()=>go('end'));                       // 60.0  end card, 8.0
+    at(67500,()=>document.querySelector('.stage').classList.add('fade'));
+    at(68000,()=>{ document.querySelector('.stage').classList.remove('fade'); play(); });
   }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
   $('replayBtn').addEventListener('click',()=>{ if(AUTO) play(); });
   $('pauseBtn').addEventListener('click',togglePause);
   addEventListener('keydown',e=>{ if(AUTO && e.code==='Space'){ e.preventDefault(); togglePause(); } });
-  (function bar(){                                  // 2 px loop progress along the top of the frame
-    const e = paused ? pausedAt-t0 : elapsed();
-    $('pbar').style.width = Math.min(100,e/LOOP*100)+'%';
-    requestAnimationFrame(bar);
-  })();
+
 
   if(AUTO){ document.body.classList.add('auto'); play(); } else reset();
 })();
