@@ -153,10 +153,10 @@
   body.view .ring.on{display:block;animation:tapring 1.2s ease-in-out infinite}
   @keyframes tapring{0%,100%{transform:scale(.85);opacity:.9}50%{transform:scale(1.15);opacity:.3}}
   /* callout pointing up at the wordmark (view 2 only) */
-  .callout{position:absolute;z-index:18;right:10px;padding:8px 14px;border-radius:14px;background:#101014;
-    color:#fff;font-size:14px;font-weight:600;line-height:1.3;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+  .callout{position:absolute;z-index:18;right:10px;padding:8px 14px;border-radius:14px;background:var(--mp-yellow);
+    color:#101014;font-size:14px;font-weight:700;line-height:1.3;box-shadow:0 6px 18px rgba(0,0,0,.45)}
   .callout::before{content:"";position:absolute;top:-8px;left:var(--tail,38px);
-    border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid #101014}
+    border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--mp-yellow)}
   /* caption band, in the flow under the worksheet header */
   .vcap{flex:none;padding:11px 16px;text-align:center;
     background:#101014;color:var(--mp-yellow);font-size:16px;font-weight:700;line-height:1.35}
@@ -478,7 +478,7 @@ Update the job card before leaving.`;
     state.travel=true; state.doneAt=CLOCK.done; go('jobs');
     timers.push(setTimeout(()=>{
       addMsg(GAP_MSG,'in',CLOCK.done,'big');
-      notify(H.feedback,'Two more bits before the claim goes off.',()=>{state.threadFrom='jobs';go('thread');});
+      notify(H.feedback,'2 open items. Please check.',()=>{state.threadFrom='jobs';go('thread');});
     },1500));
   }
 
@@ -610,12 +610,21 @@ Update the job card before leaving.`;
     function(done){ go('end'); at(500,done); }       // stop 6 -> 7
   ];
 
+  // ---- ?auto: the sequences back to back, with the reading dwells between them
+  function play(){
+    reset(); t0=Date.now(); go('c1');
+    const dwell=[3000,1500,10000,4600,5000];       // hold after sequences 1..5
+    let i=1;
+    const run=()=>SEQ[i](()=>{ const d=dwell[i-1]||0; i++; if(i<=6) at(d,run); });
+    at(8000,run);                                  // opening card, 8.0 s
+  }
+
   // ---- default mode: a clickable prototype, one live control per view
   const VIEW_SCREEN = {1:'c1',2:'job',3:'job',4:'thread',5:'worksheet',6:'job',
                        7:'job',8:'thread',9:'worksheet',10:'jobs',11:'thread',12:'end'};
   const VIEW_BANNER = {
     3:()=>notify(H.brief,`Develon's warranty team requires 3 items on this job.`,()=>{}),
-    7:()=>notify(H.feedback,'Two more bits before the claim goes off.',()=>{}),
+    7:()=>notify(H.feedback,'2 open items. Please check.',()=>{}),
     10:()=>notify(H.feedback,'Evidence complete. Ready for the office.',()=>{})
   };
   const VIEW_TARGET = {                          // the one live control on each view
