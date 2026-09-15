@@ -22,8 +22,8 @@
   .screen.on{display:flex}
   .statusbar{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:13px;font-weight:600;color:#fff;background:var(--chrome)}
   .statusbar.light{color:var(--ink);background:transparent}
-  .statusbar.app{position:relative;align-items:center;padding:0 16px;background:#FFF;color:var(--ink);border-bottom:1px solid #E4E7EA}
-  .statusbar.app .logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:16px;width:auto;display:block}
+  .statusbar.app{position:relative;height:50px;align-items:center;padding:0 16px;background:#FFF;color:var(--ink);border-bottom:1px solid #E4E7EA}
+  .statusbar.app .logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:22px;width:auto;display:block}
   .topbar{height:52px;background:var(--chrome);color:#fff;display:flex;align-items:center;padding:0 12px;gap:10px;font-weight:600;font-size:16px}
   .topbar .back{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:20px}
   .topbar .spacer{flex:1}
@@ -135,6 +135,11 @@
     color:var(--mp-yellow);font-size:20px;font-weight:700;line-height:1.3;
     opacity:0;transition:opacity .6s linear;pointer-events:none}   /* fade out */
   .scene.on{opacity:1;transition:opacity 1s linear}                /* fade in */
+  .scene span{display:inline-block}
+  .scene.scrim span{background:rgba(16,16,20,.9);padding:9px 15px;border-radius:12px}
+  /* stepped hint (.hint belongs to the worksheet cause note) */
+  .steptip{margin-top:12px;font-size:13px;color:#C9D1D9;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none}
+  .steptip.on{opacity:1}
   /* pause */
   .pbtn{display:none;position:absolute;right:14px;bottom:14px;z-index:70;width:32px;height:32px;border-radius:50%;
     background:rgba(0,0,0,.45);color:#fff;font-size:11px;line-height:1;align-items:center;justify-content:center}
@@ -147,8 +152,8 @@
     transition:transform .4s cubic-bezier(.4,.1,.2,1),opacity .2s}
   .tip.on{opacity:1}
   .tip.pulse{animation:ping .3s ease}
-  .auto .screen.on{animation:cut .25s ease both}
-  .auto .screen.end-card.on,.auto .screen.title-card.on{animation:cut .5s ease both}
+  .demo .screen.on{animation:cut .25s ease both}
+  .demo .screen.end-card.on,.demo .screen.title-card.on{animation:cut .5s ease both}
   .rise{animation:rise .35s ease}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}}
   @keyframes cut{from{opacity:0}}
@@ -157,7 +162,8 @@
     .stage{padding:0;gap:0;height:100dvh;min-height:0;overflow:hidden}
     .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
     .statusbar{display:none}
-    .statusbar.app{display:flex;height:34px}
+    .statusbar.app{display:flex;height:40px}
+    .steptip{position:fixed;left:0;right:0;bottom:14px;margin:0;z-index:40}
     .banner{top:10px}
   }
   @media (prefers-reduced-motion:reduce){
@@ -214,19 +220,20 @@
 
   <!-- JOBS LIST -->
   <section class="screen on" id="s-jobs">
-    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="48" height="16"></div>
+    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="66" height="22"></div>
     <div class="topbar"><span style="font-size:18px">☰</span><span>Jobs (3)</span></div>
     <div class="content" id="jobsList"></div>
   </section>
 
   <!-- JOB DETAIL -->
   <section class="screen" id="s-job">
-    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="48" height="16"></div>
+    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="66" height="22"></div>
     <div class="topbar"><button class="back" data-go="jobs" aria-label="Back">‹</button><span id="jobTitle">Job 48213</span><span class="spacer"></span><button class="tick" id="tickBtn" aria-label="Complete job" title="Complete job">✓</button></div>
     <div class="content">
       <div class="machine">
         <b id="machineName">Develon DX300LC-7K</b>
         <span>Serial DHKCEBBRTP0001417 · 1,240 h · Registered 14 Nov 2025 · Ashcroft Groundworks Ltd, NN15 5AB</span>
+        <span id="travelLine" hidden>Travel started 14:31</span>
       </div>
       <div class="h">Reported fault</div>
       <div class="card fault">Customer reports slow slew and boom, hydraulic warning on dash. Machine stopped, 7 weeks since delivery.</div>
@@ -238,13 +245,13 @@
         <button class="row"><span>Photos</span><span><span class="prog" id="photoProg">0</span><span class="chev">›</span></span></button>
       </div>
       <button class="primary" id="startBtn">Start job</button>
-      <button class="primary go" id="completeBtn" hidden>Complete job</button>
+      <button class="primary go" id="travelBtn" hidden>Add travel</button>
     </div>
   </section>
 
   <!-- WORKSHEET -->
   <section class="screen" id="s-ws">
-    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="48" height="16"></div>
+    <div class="statusbar app"><img class="logo" src="ibcos.png" alt="Ibcos" width="66" height="22"></div>
     <div class="topbar"><button class="back" data-go="job" aria-label="Back">‹</button><span id="wsTitle"></span></div>
     <div class="content" id="wsForm">
       <div class="q"><label>Hour meter reading<i>*</i></label><input id="q-hours" inputmode="numeric" placeholder="e.g. 1240"></div>
@@ -274,16 +281,19 @@
 </div>
 
 </div>
+<p class="steptip" id="stepTip" aria-hidden="true"></p>
+</div>
 
 <script>
 (function(){
   const $ = id => document.getElementById(id);
   const screens = {jobs:$('s-jobs'), job:$('s-job'), worksheet:$('s-ws'), thread:$('s-thread'), c1:$('s-c1'), end:$('s-end')};
-  const AUTO = !new URLSearchParams(location.search).has('manual');
+  const Q = new URLSearchParams(location.search);
+  const MANUAL = Q.has('manual'), AUTO = Q.has('auto'), STEP = !MANUAL && !AUTO;
   const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let t0 = Date.now();
   const elapsed = () => Date.now()-t0;
-  const state = {started:false, completed:false, fixed:false, threadFrom:'job',
+  const state = {started:false, travel:false, fixed:false, threadFrom:'job',
     hours:'', hourPhoto:false, partPhoto:false, complaint:'', cause:'', correction:'', op:null, banner:null};
   let timers=[], paused=false, pausedAt=0;
   function arm(e,ms){ e.id=setTimeout(()=>{ const i=timers.indexOf(e); if(i>=0) timers.splice(i,1); e.fn(); },ms); }
@@ -318,10 +328,12 @@
     const el=$('jobsList'); el.innerHTML='<div class="daybar">Today · Sunday 13 September</div>';
     JOBS.forEach(j=>{
       const b=document.createElement('button');
-      const done = j.done || (j.main && state.completed);
+      const done = !!j.done;
       b.className='job'+(done?' done':'');
-      const doneTxt = j.main ? (state.fixed?'Completed · Evidence complete':'Completed '+state.doneAt) : 'Completed 10:05';
-      b.innerHTML=`<div class="t">${j.t}</div><div><div class="who">${j.who}${j.pill&&!done?`<span class="pill">${j.pill}</span>`:''}</div><div class="type">${done?doneTxt:j.type}</div><div class="where">${j.where}</div></div><div class="dist">${j.dist} ›</div>`;
+      let type = j.type;
+      if(done) type='Completed 10:05';
+      if(j.main && state.travel) type='Travel started '+state.doneAt+(state.fixed?' · Evidence complete':'');
+      b.innerHTML=`<div class="t">${j.t}</div><div><div class="who">${j.who}${j.pill&&!done?`<span class="pill">${j.pill}</span>`:''}</div><div class="type">${type}</div><div class="where">${j.where}</div></div><div class="dist">${j.dist} ›</div>`;
       if(j.main){ b.id='jobMain'; b.addEventListener('click',()=>go('job')); }
       el.appendChild(b);
     });
@@ -334,7 +346,7 @@
     if(name==='job') syncJob();
     if(name==='worksheet') syncWs();
     if(name==='thread') $('threadBody').scrollTop=1e6;
-    $('pauseBtn').style.display = (name==='end') ? 'none' : '';
+    $('pauseBtn').style.display = (name==='end'||!AUTO) ? 'none' : '';
   }
   document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{ if(b.dataset.go==='job'&&screens.worksheet.classList.contains('on')) readWs(); go(b.dataset.go); }));
   $('threadBack').addEventListener('click',()=>go(state.threadFrom));
@@ -349,7 +361,7 @@
     $('q-hours').value=state.hours; $('q-complaint').value=state.complaint; $('q-cause').value=state.cause; $('q-correction').value=state.correction;
     setPhoto($('q-hourphoto'),state.hourPhoto,'Hour meter, IMG_4471'); setPhoto($('q-partphoto'),state.partPhoto,'Main pump in situ, IMG_4472');
     $('op-yes').className=state.op==='yes'?'on-yes':''; $('op-no').className=state.op==='no'?'on-no':'';
-    const flag = state.completed && !state.fixed;
+    const flag = state.travel && !state.fixed;
     $('wrap-cause').classList.toggle('flag',flag);
     $('hint-cause').hidden=!flag; $('hint-cause').textContent='Develon will ask why the pump failed and what you measured to condemn it.';
     if(flag) setTimeout(()=>{$('q-cause').focus();},200);
@@ -369,10 +381,11 @@
     $('wsProg').textContent=n+' of 7'; $('wsProg').classList.toggle('ok',n===7);
     $('photoProg').textContent=(state.hourPhoto?1:0)+(state.partPhoto?1:0);
     $('partsProg').textContent=state.correction?'1 line':'None';
-    $('startBtn').hidden=state.started; $('completeBtn').hidden=!state.started||state.completed;
-    $('completeBtn').disabled=n<7;
-    if(state.completed){ $('completeBtn').hidden=false; $('completeBtn').textContent='Completed '+state.doneAt; $('completeBtn').disabled=true; $('completeBtn').style.opacity='1'; $('completeBtn').style.background='var(--chrome-2)'; }
-    else { $('completeBtn').textContent='Complete job'; $('completeBtn').style.background=''; }
+    $('startBtn').hidden=state.started; $('travelBtn').hidden=!state.started;
+    $('travelBtn').disabled=state.travel;
+    $('travelLine').hidden=!state.travel;
+    if(state.travel){ $('travelBtn').textContent='Travel started '+state.doneAt; $('travelBtn').style.opacity='1'; $('travelBtn').style.background='var(--chrome-2)'; }
+    else { $('travelBtn').textContent='Add travel'; $('travelBtn').style.background=''; }
   }
 
   const FILL = {hours:'1240',
@@ -406,11 +419,7 @@ Update the job card before leaving.`;
     const m=document.createElement('div'); m.className='msg '+dir+(cls?' '+cls:''); m.innerHTML=html;
     $('threadBody').append(t,m); $('threadBody').scrollTop=1e6;
   }
-  function msgDelay(kind){
-    if(!AUTO) return kind==='start'?1500:3500;
-    if(kind==='start') return 2000;                              // tapped at 4.0 s -> banner at 6.0 s
-    return Math.max(700,35000-elapsed());                        // banner at 35.0 s
-  }
+  function msgDelay(){ return MANUAL ? 1500 : 2000; }            // Start tap -> briefing text
 
   function notify(title,body,onOpen){
     $('bannerTitle').textContent=title; $('bannerBody').textContent=body; $('bannerTime').textContent='now';
@@ -422,30 +431,30 @@ Update the job card before leaving.`;
   // ---- flow
   $('startBtn').addEventListener('click',()=>{
     state.started=true; syncJob(); state.startAt=CLOCK.started;
-    if(!AUTO) at(600,fillWorksheet);   // manual: the card arrives filled, so Complete is always reachable
+    if(MANUAL) at(600,fillWorksheet);  // manual: the card arrives filled, so Add travel is reachable
     timers.push(setTimeout(()=>{
       addMsg(START_MSG,'in',CLOCK.started);
       notify(H.brief,`Develon's warranty team requires 3 items on this job.`,()=>{state.threadFrom='job';go('thread');});
-    },msgDelay('start')));
+    },msgDelay()));
   });
 
-  $('completeBtn').addEventListener('click',doComplete);
-  $('tickBtn').addEventListener('click',()=>{ if(!state.started||wsCount()<7||state.completed) return; doComplete(); });
+  $('travelBtn').addEventListener('click',addTravel);   // the tick in the topbar is decorative
 
-  function doComplete(){
-    readWsIfOn(); if(wsCount()<7) return;
-    state.completed=true; state.doneAt=CLOCK.done; go('jobs');
+  function addTravel(){
+    if(state.travel) return;
+    readWsIfOn();
+    state.travel=true; state.doneAt=CLOCK.done; go('jobs');
     timers.push(setTimeout(()=>{
       addMsg(GAP_MSG,'in',CLOCK.done,'big');
-      notify(H.feedback,'Two more bits to add before the claim goes off.',()=>{state.threadFrom='jobs';go('thread');});
-    },msgDelay('complete')));
+      notify(H.feedback,'Two more bits before the claim goes off.',()=>{state.threadFrom='jobs';go('thread');});
+    },1500));
   }
 
   function reset(){
     clearTimers(); paused=false; $('pausedPill').classList.remove('on');
-    Object.assign(state,{started:false,completed:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
+    Object.assign(state,{started:false,travel:false,fixed:false,threadFrom:'job',hours:'',hourPhoto:false,partPhoto:false,complaint:'',cause:'',correction:'',op:null,banner:null});
     $('threadBody').innerHTML=''; $('banner').classList.remove('on');
-    $('tip').classList.remove('on'); $('scene').classList.remove('on'); $('scene').textContent='';
+    $('tip').classList.remove('on'); $('scene').classList.remove('on'); $('scene').textContent=''; $('scene').classList.remove('scrim');
     document.querySelectorAll('.content').forEach(c=>c.scrollTop=0);
     document.querySelectorAll('.rise,.fade3').forEach(e=>e.classList.remove('rise','fade3'));
     $('wrap-cause').classList.remove('ok');
@@ -482,13 +491,13 @@ Update the job card before leaving.`;
     at(t+350,()=>tip.classList.remove('on'));
   }
   const CAUSE_ADD = ' Swash plate scored, metal in return filter. Case drain 1.1 L/min at 2,000 rpm, spec 0.2.';
-  function scene(text,anchor,hold){   // one yellow line in the empty space under the content
-    const el=$('scene'), ph=$('phone').getBoundingClientRect(), a=anchor();
-    if(!a) return;
-    const r=a.getBoundingClientRect();
-    el.classList.remove('on');
-    el.textContent=text;
-    el.style.top=Math.round(Math.min(r.bottom-ph.top+24, ph.height-110))+'px';
+  function scene(text,anchor,hold,pill){   // one yellow line over the empty part of the screen
+    const el=$('scene'), ph=$('phone').getBoundingClientRect(), a=anchor?anchor():null;
+    if(anchor && !a) return;
+    const top = a ? Math.min(a.getBoundingClientRect().bottom-ph.top+24, ph.height-110) : ph.height-150;
+    el.classList.remove('on'); el.classList.toggle('scrim',!!pill);
+    el.innerHTML=''; el.appendChild(document.createElement('span')).textContent=text;
+    el.style.top=Math.round(top)+'px';
     void el.offsetHeight;             // flush layout at opacity 0, or Safari skips the fade
     requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('on')));
     at(hold,()=>el.classList.remove('on'));
@@ -530,40 +539,120 @@ Update the job card before leaving.`;
     }));
   }
 
+  // ---- the six sequences, shared by ?auto and stepped mode
+  const SEQ = [null,
+    function(done){                                  // stop 1 -> 2
+      go('job');
+      at(400,()=>scene('Your job app, as usual',()=>$('startBtn'),3900));
+      tapAt(5000,()=>$('startBtn'));                 // briefing text lands 2.0 s later
+      tapAt(9500,()=>$('banner'));
+      at(9900,()=>scene('Text arrives instantly',()=>$('threadBody').querySelector('.msg'),3000));
+      at(13500,done);
+    },
+    function(done){                                  // stop 2 -> 3
+      go('job');
+      tapAt(1500,()=>$('wsRow'));
+      at(3500,fadeFill);                             // seven fields, 350 ms apart
+      at(6200,()=>scene('He writes what he always writes.',null,3000,true));
+      at(9800,done);
+    },
+    function(done){                                  // stop 3 -> 4
+      at(0,()=>reveal($('saveBtn')));
+      tapAt(1200,()=>$('saveBtn'),true);             // Save just returns to the job
+      tapAt(2700,()=>$('travelBtn'));                // travel starts, banner 2 1.5 s later
+      tapAt(7700,()=>$('banner'));
+      at(7700,done);
+    },
+    function(done){                                  // stop 4 -> 5
+      at(0,()=>{ state.fixed=true; go('worksheet'); growCause(); centreCause(); });
+      at(400,appendCause);
+      at(1400,()=>{ $('okLine').hidden=false; done(); });
+    },
+    function(done){                                  // stop 5 -> 6
+      at(0,()=>reveal($('saveBtn')));
+      tapAt(800,()=>$('saveBtn'),true);
+      at(1500,resolved);
+      tapAt(3500,()=>$('banner'));
+      at(3500,done);
+    },
+    function(done){ go('end'); at(500,done); }       // stop 6 -> 7
+  ];
+
+  const SCREEN_AT = {1:'c1',2:'thread',3:'worksheet',4:'thread',5:'worksheet',6:'thread',7:'end'};
+
+  function restore(i){              // a stop's finished state, with no action replayed
+    reset();
+    if(i>=2){ state.started=true; state.startAt=CLOCK.started; addMsg(START_MSG,'in',CLOCK.started); }
+    if(i>=3) fillWorksheet();
+    if(i>=4){ state.travel=true; state.doneAt=CLOCK.done; addMsg(GAP_MSG,'in',CLOCK.done,'big'); }
+    if(i>=5){ state.fixed=true; state.cause=state.cause+CAUSE_ADD; }
+    if(i>=6) addMsg(DONE_MSG,'in',CLOCK.resolved);
+    syncWs(); syncJob();
+    go(SCREEN_AT[i]);
+    if(i===5){ growCause(); centreCause(); $('wrap-cause').classList.add('ok'); $('okLine').hidden=false; }
+  }
+
+  // ---- ?auto: the sequences back to back, with the reading dwells between them
   function play(){
-    reset(); t0=Date.now();
-    go('c1');                                      //  0.0  opening card, 8.0
-    at(8000,()=>go('job'));                        //  8.0  job detail, 5.0
-    at(8400,()=>scene('Your job app, as usual',()=>$('startBtn'),3900));   // 4.5 s on screen, clear by 12.9
-    tapAt(13000,()=>$('startBtn'));                // 13.0  taps Start, 2.0
-    tapAt(17500,()=>$('banner'));                  // 15.0  banner 1, 2.5 -> tapped, text 1, 7.0
-    at(17900,()=>scene('Text arrives instantly',()=>$('threadBody').querySelector('.msg'),3000));
-    at(24500,()=>go('job'));                       // 24.5  cut back to the job, 1.5
-    tapAt(26000,()=>$('wsRow'));                   // 26.0  taps the worksheet row, 1.0
-    at(28000,fadeFill);                            // 28.0  seven fields rise, then still, 4.0
-    at(30800,()=>reveal($('saveBtn')));
-    tapAt(32000,()=>$('saveBtn'));                 // 32.0  taps Save...
-    at(32400,doComplete);                          //       ...which completes it, 3.0
-    tapAt(38500,()=>$('banner'));                  // 35.0  banner 2, 3.5 -> tapped, text 2, 10.0
-    at(48500,()=>{ state.fixed=true; go('worksheet');     // 48.5  the correction, 6.0 still
-      growCause(); centreCause(); });
-    at(48900,appendCause);
-    at(49900,()=>{ $('okLine').hidden=false; });
-    at(54500,()=>reveal($('saveBtn')));            // 54.5  taps Save, 1.5
-    tapAt(55300,()=>$('saveBtn'),true);
-    at(55700,()=>go('jobs'));
-    at(56000,resolved);                            // 56.0  banner 3, 2.0
-    tapAt(58000,()=>$('banner'));                  // 58.0  tapped, text 3, 5.0
-    at(63000,()=>go('end'));                       // 63.0  end card, held until Replay
+    reset(); t0=Date.now(); go('c1');
+    const dwell=[3000,1500,10000,4600,5000];       // hold after sequences 1..5
+    let i=1;
+    const next=()=>SEQ[i](()=>{ const d=dwell[i-1]||0; i++; if(i<=6) at(d,next); });
+    at(8000,next);                                 // opening card, 8.0 s
+  }
+
+  // ---- stepped: action plays itself, reading waits for the viewer
+  let stopIdx=1, playing=false, advances=0, swiped=false;
+  function showTip(){
+    if(!STEP || advances>=2) return;
+    $('stepTip').textContent = matchMedia('(max-width:430px)').matches
+      ? 'Tap to continue' : 'Click or press → to continue';
+    at(1500,()=>$('stepTip').classList.add('on'));
+  }
+  function hideTip(){ $('stepTip').classList.remove('on'); }
+  function advance(){
+    if(!STEP || playing || stopIdx>=7) return;
+    playing=true; advances++; hideTip();
+    SEQ[stopIdx](()=>{ playing=false; stopIdx++; showTip(); });
+  }
+  function back(){
+    if(!STEP || playing || stopIdx<=1) return;
+    stopIdx--; restore(stopIdx); showTip();
   }
 
   if(PROOF_POINT){ $('proofPoint').textContent=PROOF_POINT; $('proofPoint').hidden=false; }
-  $('replayBtn').addEventListener('click',()=>{ if(AUTO) play(); });
+  $('replayBtn').addEventListener('click',()=>{
+    if(AUTO) play();
+    else if(STEP){ stopIdx=1; playing=false; restore(1); showTip(); }
+  });
   $('pauseBtn').addEventListener('click',togglePause);
-  addEventListener('keydown',e=>{ if(AUTO && e.code==='Space'){ e.preventDefault(); togglePause(); } });
+  addEventListener('keydown',e=>{
+    if(AUTO && e.code==='Space'){ e.preventDefault(); togglePause(); return; }
+    if(!STEP) return;
+    if(e.code==='ArrowRight'||e.code==='Space'){ e.preventDefault(); advance(); }
+    else if(e.code==='ArrowLeft'){ e.preventDefault(); back(); }
+  });
+  $('phone').addEventListener('click',e=>{            // stepped: a tap anywhere advances
+    if(!STEP || !e.isTrusted || swiped) return;
+    if(e.target.closest('.cta,#replayBtn')) return;   // the end card's own buttons still work
+    e.stopPropagation(); e.preventDefault(); advance();
+  },true);
+  (function(){
+    let sx=null;
+    $('phone').addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; },{passive:true});
+    $('phone').addEventListener('touchend',e=>{
+      if(!STEP || sx===null) return;
+      const dx=e.changedTouches[0].clientX-sx; sx=null;
+      if(Math.abs(dx)<40) return;
+      swiped=true; setTimeout(()=>swiped=false,400);
+      if(dx<0) advance(); else back();
+    });
+  })();
 
 
-  if(AUTO){ document.body.classList.add('auto'); play(); } else reset();
+  if(AUTO){ document.body.classList.add('demo','auto'); play(); }
+  else if(STEP){ document.body.classList.add('demo'); restore(1); showTip(); }
+  else reset();
 })();
 </script>
 </body>
